@@ -15,10 +15,65 @@
     <div v-else class="file-list">
       <div class="header"> {{ 'Recieved data: ' + csvProcessedFiles.length +' files' }} </div>
 
-      <div v-for="(file, index) in csvProcessedFiles" :key="index + '_read'">
-        <span>{{ file.seq }}</span>
+      <div v-show="loading" class="table-container"> 
+        <table class="table-mapped-overview">
+          <thead>
+            <tr>
+              <th>
+                Dataset
+              </th>
+              <th>
+                Reference
+              </th>
+              <th>
+                Mapped reads
+              </th>
+              <th>
+                Forward/Reverse balance
+              </th>
+              <th>
+                Nonredundant, %
+              </th>
+              <th>
+                Variant specific (%)
+              </th>
+              <th>
+                Barplot
+                <div class="barplot-bar" :style="{width: '200px', background: 'darkorange', 'font-size': '0.75rem', 'text-align': 'right'}" :ref="index+'_cnt'">Scale: 10,000 reads</div>
 
-      </div>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="(file, index) in csvProcessedFiles"
+              :key="'file' + index">  
+              <td>
+                 {{ file.name.match(/CR.{5}/)[0] }}
+              </td>
+              <td>
+                 {{ file.seqDetails.ref.seqName }}
+              </td>
+              <td>
+                 {{ file.seqDetails.totalCount }}
+              </td>
+              <td>
+                 {{ file.seqDetails.frRvRatio }}
+              </td>
+              <td>
+                 {{ file.seqDetails.nonRedundantPerc }}
+              </td>
+              <td @click="getVariantSpecific(index)">
+                 {{ getVariantSpecific(index) + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index) / file.seqDetails.totalCount)) + '%)' }}
+              </td>
+              <td >
+                <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index+'_cnt'"></div>
+                
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
       
     </div>
   </div>
@@ -35,9 +90,19 @@ export default {
   components: {
 
   },
+  data (){
+    return{
+      loading: false,
+      files: []
+    }
+  },
   methods: {
     showStore (){
       console.log(store.state.csvProcessedFiles)
+      // console.log(this.files)
+    },
+    fixedNumber (n) {
+      return n.toFixed(1)
     },
     showFiles() {
       for (const file of this.$refs.csvLoader.files) {
@@ -45,15 +110,28 @@ export default {
           .text()
           .then((data) => data)
           .then((data) => {
-            store.commit("addEntry", processCsvFile(data));
+            const nameAndSeq = {name: file.name, seqDetails: processCsvFile(data)}
+            store.commit("addEntry", nameAndSeq);
           })
           .catch((e) => console.error(e));
       }
     },
+    getVariantSpecific (index){
+      const compared = store.state.csvProcessedFiles[index].seqDetails.reads.map(read => read.seq);
+      const others = store.state.csvProcessedFiles.filter((_, i) => i !== index);
+
+      const seqsFromOthers = new Set (others.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
+      const variantSpecific = compared.filter(read => !seqsFromOthers.has(read));
+      this.loading = true;
+      return variantSpecific.length
+    },
+    commonBetweenTwo(a,b){
+      return a + b
+    },
   },
   computed: {
     csvProcessedFiles() {
-      return store.state.csvProcessedFiles;
+         return store.state.csvProcessedFiles;
     },
   },
 };
@@ -85,6 +163,23 @@ button
     margin 10px auto
     padding 10px
     font-size 1rem
+
+.table-container
+  max-width: 70%
+  margin 2rem auto
+  text-align: left
+
+.table-mapped-overview
+    background: lightblue
+    width 100%
+  &th,td
+    padding 0.5rem
+
+.barplot-bar
+  background: gray
+  height: 20px
+
+
 .exclude-btn
     background lighten(red, 20%)
     border-radius: 5px

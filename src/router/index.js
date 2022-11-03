@@ -4,7 +4,7 @@ import IndexView from "../views/IndexView.vue";
 
 const routes = [
   {
-    path: "/index",
+    path: "/",
     name: "index",
     component: IndexView,
   },
