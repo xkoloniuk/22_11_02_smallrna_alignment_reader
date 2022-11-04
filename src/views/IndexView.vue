@@ -1,6 +1,5 @@
 <template>
 
-
   <div class="container">
     <h1 v-show="!csvProcessedFiles.length">Upload mapping of small RNA in FASTA format</h1>
     <div @click="showStore" >show processed fasta data</div>
@@ -87,9 +86,7 @@ import processCsvFile from "@/utils/processCSVfile.js";
 
 export default {
   name: "IndexView",
-  components: {
 
-  },
   data (){
     return{
       loading: false,

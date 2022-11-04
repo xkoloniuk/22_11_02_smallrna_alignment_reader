@@ -37,8 +37,8 @@ function splitMultiFasta(target) {
   const uniques = new Set(reads.flatMap( ({seq}) => seq))
   const uniquesCount = uniques.size
   const totalCount = reads.length
-  const nonRedundantPerc = (100 * uniquesCount / totalCount).toFixed(2);
-
+  const nonRedundantPerc = (100 * uniquesCount / totalCount).toFixed(1);
+// file name is attached to the dataset in IndexView in function 'showFiles'
   return {ref, reads, frRvRatio, totalCount, nonRedundantPerc}
 
 }

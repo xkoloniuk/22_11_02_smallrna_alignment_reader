@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import IndexView from "../views/IndexView.vue";
+import IndexView from "@/views/IndexView.vue";
+import ComparisonsView from "@/views/ComparisonsView.vue";
 
 
 const routes = [
@@ -7,6 +8,11 @@ const routes = [
     path: "/",
     name: "index",
     component: IndexView,
+  },
+  {
+    path: "/comparisons",
+    name: "comparisons",
+    component: ComparisonsView,
   },
 
 ];
