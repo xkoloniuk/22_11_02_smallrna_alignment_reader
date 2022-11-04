@@ -1,14 +1,20 @@
-const processCsvFile = function (file) {
-  const arrayOfFastaEntries = splitMultiFasta(file);
+const processCsvFile = function (file, name) {
+  const arrayOfFastaEntries = splitMultiFasta(file, name);
   return arrayOfFastaEntries
 };
 
-function splitMultiFasta(target) {
+function splitMultiFasta(target, name) {
   const fastaArray = target.split(">");
   const reads = []
   let ref = {}
   const regex = /^-*/
   const dnaSeq = /[ATCG]{18,32}/
+  const dtsetPattern = /\d[A-Z]_\d/
+  const virusPattern = /SMoV|StrV1|SCV/
+  const dataset = name.match(dtsetPattern)[0]
+  const virus = name.match(virusPattern)[0]
+
+
   fastaArray.forEach((fasta, i) => {
     if (!fasta) return
     const tmpSplit = fasta.split('\n')
@@ -39,7 +45,7 @@ function splitMultiFasta(target) {
   const totalCount = reads.length
   const nonRedundantPerc = (100 * uniquesCount / totalCount).toFixed(1);
 // file name is attached to the dataset in IndexView in function 'showFiles'
-  return {ref, reads, frRvRatio, totalCount, nonRedundantPerc}
+  return {dataset, virus, ref, reads, frRvRatio, totalCount, nonRedundantPerc}
 
 }
 
