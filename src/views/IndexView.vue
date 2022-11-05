@@ -1,6 +1,5 @@
 <template>
 
-
   <div class="container">
     <h1 v-show="!csvProcessedFiles.length">Upload mapping of small RNA in FASTA format</h1>
     <div @click="showStore" >show processed fasta data</div>
@@ -21,6 +20,9 @@
             <tr>
               <th>
                 Dataset
+              </th>
+              <th>
+                Virus
               </th>
               <th>
                 Reference
@@ -49,7 +51,10 @@
             <tr v-for="(file, index) in csvProcessedFiles"
               :key="'file' + index">  
               <td>
-                 {{ file.name.match(/CR.{5}/)[0] }}
+                 {{ file.seqDetails.dataset }}
+              </td>
+              <td>
+                 {{ file.seqDetails.virus }}
               </td>
               <td>
                  {{ file.seqDetails.ref.seqName }}
@@ -87,9 +92,7 @@ import processCsvFile from "@/utils/processCSVfile.js";
 
 export default {
   name: "IndexView",
-  components: {
 
-  },
   data (){
     return{
       loading: false,
@@ -110,7 +113,7 @@ export default {
           .text()
           .then((data) => data)
           .then((data) => {
-            const nameAndSeq = {name: file.name, seqDetails: processCsvFile(data)}
+            const nameAndSeq = {name: file.name, seqDetails: processCsvFile(data, file.name)}
             store.commit("addEntry", nameAndSeq);
           })
           .catch((e) => console.error(e));

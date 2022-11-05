@@ -1,9 +1,24 @@
 <template>
   <nav>
+  <i-button-reset />
+
     <router-link to="/">Home</router-link>
+    <router-link to="/comparisons">Comparisons</router-link>
   </nav>
   <router-view/>
 </template>
+
+<script>
+
+import IButtonReset from './components/IButtonReset.vue';
+  export default {
+    components: {
+      IButtonReset
+    }
+    
+  }
+</script>
+
 
 <style lang="stylus">
 #app
@@ -13,4 +28,6 @@
   text-align center
   color #2c3e50
   margin-top 60px
+a
+  padding 1rem
 </style>
