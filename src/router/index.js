@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import IndexView from "@/views/IndexView.vue";
 import ComparisonsView from "@/views/ComparisonsView.vue";
+import DatasetView from "@/views/DatasetView.vue";
 
 
 const routes = [
@@ -13,6 +14,11 @@ const routes = [
     path: "/comparisons",
     name: "comparisons",
     component: ComparisonsView,
+  },
+  {
+    path: "/reads-datasets",
+    name: "readsdatasets",
+    component: DatasetView,
   },
 
 ];
