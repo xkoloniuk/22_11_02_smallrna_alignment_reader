@@ -61,15 +61,19 @@
               </td>
               <td>
                  {{ file.seqDetails.totalCount }}
+                 <i-length-barplot :data="file.seqDetails.reads.map(item => item.seq)" />
               </td>
               <td>
                  {{ file.seqDetails.frRvRatio }}
               </td>
               <td>
                  {{ file.seqDetails.nonRedundantPerc }}
+                 <i-length-barplot :data="file.seqDetails.uniqueReads"/>
+
               </td>
-              <td @click="getVariantSpecific(index)">
-                 {{ getVariantSpecific(index) + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index) / file.seqDetails.totalCount)) + '%)' }}
+              <td>
+                 {{ getVariantSpecific(index).length + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index).length / file.seqDetails.totalCount)) + '%)' }}
+                 <i-length-barplot :data="getVariantSpecific(index)"/>
               </td>
               <td >
                 <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index+'_cnt'"></div>
@@ -86,13 +90,15 @@
 
 <script>
 import store from "@/store/index";
-
+import ILengthBarplot from "@/components/ILengthBarplot.vue"
 import processCsvFile from "@/utils/processCSVfile.js";
 
 
 export default {
   name: "IndexView",
-
+  components: {
+    ILengthBarplot
+  },
   data (){
     return{
       loading: false,
@@ -102,7 +108,8 @@ export default {
   methods: {
     showStore (){
       console.log(store.state.csvProcessedFiles)
-      // console.log(this.files)
+      console.log(this.datasets)
+
     },
     fixedNumber (n) {
       return n.toFixed(1)
@@ -120,13 +127,19 @@ export default {
       }
     },
     getVariantSpecific (index){
-      const compared = store.state.csvProcessedFiles[index].seqDetails.reads.map(read => read.seq);
-      const others = store.state.csvProcessedFiles.filter((_, i) => i !== index);
+      const comparedSeqs = store.state.csvProcessedFiles[index].seqDetails.reads.map(read => read.seq);
+      const currentDataset = store.state.csvProcessedFiles[index].seqDetails.dataset
+      const currentVirus = store.state.csvProcessedFiles[index].seqDetails.virus
+      const currentRef = store.state.csvProcessedFiles[index].seqDetails.ref.seqName
+      const otherVariantsFromTheSameDataset = store.state.csvProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
 
-      const seqsFromOthers = new Set (others.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
-      const variantSpecific = compared.filter(read => !seqsFromOthers.has(read));
+
+      const otherSeqs = new Set (otherVariantsFromTheSameDataset.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
+      const variantSpecific = comparedSeqs.filter(read => !otherSeqs.has(read));
       this.loading = true;
-      return variantSpecific.length
+  
+
+      return variantSpecific
     },
     commonBetweenTwo(a,b){
       return a + b
@@ -136,6 +149,10 @@ export default {
     csvProcessedFiles() {
          return store.state.csvProcessedFiles;
     },
+    datasets () {
+      const datasets = store.state.csvProcessedFiles.map(file => file.seqDetails.dataset)
+      return new Set(datasets)
+    }
   },
 };
 </script>
@@ -174,9 +191,17 @@ button
 
 .table-mapped-overview
     background: lightblue
+    border-collapse: collapse;
     width 100%
   &th,td
     padding 0.5rem
+    vertical-align: top
+  &tr:nth-child(even)
+    background: white
+    margin 20px
+  &tr:not(:first-child)
+    border-top: 2px solid blue
+
 
 .barplot-bar
   background: gray
