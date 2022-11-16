@@ -50,22 +50,23 @@
         type: Object,
         default: () => {}
       },
-      barPosChartData: Array,
-      barNegChartData: Array
+      barPlusChartData: Array,
+      barMinusChartData: Array,
+      barPosChartData: Array
     },
     data() {
       return {
         chartData: {
-          labels: this.barPosChartData.map((_, i) => i),
+          labels: this.barPosChartData,
           datasets: [ 
             {
                 label: 'plus',
-                data: this.barPosChartData,
+                data: this.barPlusChartData,
                 backgroundColor: 'black' 
             },
             {
                 label: 'minus',
-                data: this.barNegChartData,
+                data: this.barMinusChartData,
                 backgroundColor: 'red'
             } ]
         },

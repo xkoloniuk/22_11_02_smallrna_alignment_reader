@@ -1,5 +1,5 @@
 <template>
-<bar-chart :barPosChartData="plus" :barNegChartData="minus" />
+<bar-chart :barPosChartData="position" :barMinusChartData="minus" :barPlusChartData="plus" />
 </template>
 
 <script>
@@ -12,7 +12,8 @@ import BarChart from '@/components/BarChart.vue'
         },
         props:{
             plus: Array,
-            minus: Array
+            minus: Array,
+            position: Array
         }
     }
 </script>

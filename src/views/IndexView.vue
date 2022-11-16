@@ -86,8 +86,9 @@
                 <td colspan="8">
                   <i-coverage-plot 
                   :ref="file.name + '_plot'"
-                  :plus="file.seqDetails.ref.coveragePlus"
-                  :minus="file.seqDetails.ref.coverageMinus"
+                  :plus="file.seqDetails.ref.coverage.plus"
+                  :minus="file.seqDetails.ref.coverage.minus"
+                  :position="file.seqDetails.ref.coverage.position"
                     />
                 </td>
               </tr>

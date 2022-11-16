@@ -16,7 +16,7 @@ function splitMultiFasta(target, name) {
   const dataset = name.match(dtsetPattern)[0]
   const virus = name.match(virusPattern)[0]
   const variant = name.match(variantPattern)[0]
-
+  const uniqueSet = new Set
 
   fastaArray.forEach((fasta, i) => {
     if (!fasta) return
@@ -29,16 +29,23 @@ function splitMultiFasta(target, name) {
     const gapsBeforeSeq = tmpSecondLine.match(regexGaps)[0];
 
     if(i === 1) {
+      const lengthLongZeroes = Array.from({length:tmpSeq.length}).fill(0)
       ref = {
         seqName: tmpFirstLine,
         seq: tmpSeq,
         seqLength: tmpSeq.length,
-        coveragePlus: Array.from({length:tmpSeq.length}).fill(0),
-        coverageMinus: Array.from({length:tmpSeq.length}).fill(0),
-    } }
+        coverage: {
+          minus: lengthLongZeroes,
+          plus: lengthLongZeroes,
+          position: lengthLongZeroes.map((_ , i) => 1 + i)
+        }
+    } 
+    return
+  }
 
     const unit = {
       seqName: tmpFirstLine,
+      unique: uniqueSet.has(tmpSeq) ? false : !!uniqueSet.add(tmpSeq),
       seq: tmpSeq,
       seqLength: tmpSeq.length,
       start: gapsBeforeSeq?.length || 0,
@@ -48,8 +55,8 @@ function splitMultiFasta(target, name) {
     const seqArr = Array.from({length: unit.seqLength}).fill(0).map((_ , i) => 1 + i + unit.start)
 
     if(tmpFirstLine.endsWith('reversed)')) {
-      seqArr.map(pos => ref.coverageMinus[pos]-- )
-    } else { seqArr.map(pos => ref.coveragePlus[pos]++) }
+      seqArr.map(pos => ref.coverage.minus[pos]-- )
+    } else { seqArr.map(pos => ref.coverage.plus[pos]++) }
 
     reads.push(unit)
 
