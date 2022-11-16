@@ -48,38 +48,51 @@
           </thead>
 
           <tbody>
-            <tr v-for="(file, index) in csvProcessedFiles"
-              :key="'file' + index">  
-              <td>
-                 {{ file.seqDetails.dataset }}
-              </td>
-              <td>
-                 {{ file.seqDetails.virus }}
-              </td>
-              <td>
-                 {{ file.seqDetails.ref.seqName }}
-              </td>
-              <td>
-                 {{ file.seqDetails.totalCount }}
-                 <i-length-barplot :data="file.seqDetails.reads.map(item => item.seq)" />
-              </td>
-              <td>
-                 {{ file.seqDetails.frRvRatio }}
-              </td>
-              <td>
-                 {{ file.seqDetails.nonRedundantPerc }}
-                 <i-length-barplot :data="file.seqDetails.uniqueReads"/>
+            <template v-for="(file, index) in csvProcessedFiles"
+              :key="'file' + index">
 
-              </td>
-              <td>
-                 {{ getVariantSpecific(index).length + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index).length / file.seqDetails.totalCount)) + '%)' }}
-                 <i-length-barplot :data="getVariantSpecific(index)"/>
-              </td>
-              <td >
-                <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index+'_cnt'"></div>
-                
-              </td>
-            </tr>
+              <tr class="reads-details-tr-container">  
+                <td>
+                  {{ file.seqDetails.dataset }}
+                </td>
+                <td>
+                  {{ file.seqDetails.virus }}
+                </td>
+                <td>
+                  {{ file.seqDetails.ref.seqName }}
+                </td>
+                <td>
+                  {{ file.seqDetails.totalCount }}
+                  <i-length-barplot :data="file.seqDetails.reads.map(item => item.seq)" />
+                </td>
+                <td>
+                  {{ file.seqDetails.frRvRatio }}
+                </td>
+                <td>
+                  {{ file.seqDetails.nonRedundantPerc }}
+                  <i-length-barplot :data="file.seqDetails.uniqueReads"/>
+
+                </td>
+                <td>
+                  {{ getVariantSpecific(index).length + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index).length / file.seqDetails.totalCount)) + '%)' }}
+                  <i-length-barplot :data="getVariantSpecific(index)"/>
+                </td>
+                <td >
+                  <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index+'_cnt'"></div>
+                  
+                </td>
+              </tr>
+              <tr class="coverage-plot-tr-container">
+                <td colspan="8">
+                  <i-coverage-plot 
+                  :ref="file.name + '_plot'"
+                  :plus="file.seqDetails.ref.coveragePlus"
+                  :minus="file.seqDetails.ref.coverageMinus"
+                    />
+                </td>
+              </tr>
+          </template>
+
           </tbody>
         </table>
     </div>
@@ -91,13 +104,14 @@
 <script>
 import store from "@/store/index";
 import ILengthBarplot from "@/components/ILengthBarplot.vue"
+import ICoveragePlot from "@/components/ICoveragePlot.vue"
 import processCsvFile from "@/utils/processCSVfile.js";
 
 
 export default {
   name: "IndexView",
   components: {
-    ILengthBarplot
+    ILengthBarplot, ICoveragePlot
   },
   data (){
     return{
@@ -199,8 +213,14 @@ button
   &tr:nth-child(even)
     background: white
     margin 20px
-  &tr:not(:first-child)
-    border-top: 2px solid blue
+.coverage-plot-tr-container
+  border-bottom 2px solid black
+.coverage-plot-tr-container:nth-child(even),
+  border-left 2px solid black
+
+.reads-details-tr-container:nth-child(even)
+  border-left 2px solid black
+
 
 
 .barplot-bar

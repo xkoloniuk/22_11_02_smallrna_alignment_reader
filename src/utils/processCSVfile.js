@@ -3,6 +3,7 @@ const processCsvFile = function (file, name) {
   return arrayOfFastaEntries
 };
 
+
 function splitMultiFasta(target, name) {
   const fastaArray = target.split(">");
   const reads = []
@@ -27,6 +28,15 @@ function splitMultiFasta(target, name) {
     const tmpSeq = i === 1 ? tmpSecondLine : tmpSecondLine.match(dnaSeq)[0];
     const gapsBeforeSeq = tmpSecondLine.match(regexGaps)[0];
 
+    if(i === 1) {
+      ref = {
+        seqName: tmpFirstLine,
+        seq: tmpSeq,
+        seqLength: tmpSeq.length,
+        coveragePlus: Array.from({length:tmpSeq.length}).fill(0),
+        coverageMinus: Array.from({length:tmpSeq.length}).fill(0),
+    } }
+
     const unit = {
       seqName: tmpFirstLine,
       seq: tmpSeq,
@@ -35,16 +45,18 @@ function splitMultiFasta(target, name) {
       end: gapsBeforeSeq?.length || 0 ? tmpSeq.length : tmpSeq.length + gapsBeforeSeq?.length,
       orientation: tmpFirstLine.endsWith('reversed)') ? 'reverse' : 'forward',
     }
+    const seqArr = Array.from({length: unit.seqLength}).fill(0).map((_ , i) => 1 + i + unit.start)
 
-    if(i === 1) {
-      ref = {
-        seqName: unit.seqName,
-        seq: unit.seq,
-        seqLength: unit.seqLength}
+    if(tmpFirstLine.endsWith('reversed)')) {
+      seqArr.map(pos => ref.coverageMinus[pos]-- )
+    } else { seqArr.map(pos => ref.coveragePlus[pos]++) }
 
-    } else { reads.push(unit) }
+    reads.push(unit)
+
   }
   )
+
+
   const countReverseReads = reads.filter(read => read.orientation === 'reverse').length
   // const frRvRatio = countReverseReads
   const frRvRatio = ((reads.length - countReverseReads) / countReverseReads).toFixed(1)
@@ -54,6 +66,10 @@ function splitMultiFasta(target, name) {
   const uniquesCount = uniques.size
   const totalCount = reads.length
   const nonRedundantPerc = (100 * uniquesCount / totalCount).toFixed(1);
+
+
+
+
 // file name is attached to the dataset in IndexView in function 'showFiles'
   return {dataset, virus,variant, ref, reads, uniqueReads, frRvRatio, totalCount, nonRedundantPerc}
 
