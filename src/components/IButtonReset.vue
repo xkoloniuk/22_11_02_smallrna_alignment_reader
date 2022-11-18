@@ -17,7 +17,7 @@ export default {
   },
   computed: {
     showButton() {
-      return store.state.csvProcessedFiles.length > 1;
+      return store.state.csvProcessedFiles.length >= 1;
     },
   },
 };
@@ -25,7 +25,7 @@ export default {
 
 <style lang="stylus" scoped>
 .btn-reset
-    width 30px
+    width 50px
     height 20px
     z-index 2
     position sticky
@@ -35,7 +35,7 @@ export default {
     color red
     border 2px solid red
     border-radius 5px
-    padding 0.4rem 1rem
+    padding 0.5rem 1rem
     cursor pointer
     justify-self end
     &:hover

@@ -78,17 +78,21 @@
                   <i-length-barplot :data="getVariantSpecific(index)"/>
                 </td>
                 <td >
-                  <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index+'_cnt'"></div>
-                  
+                  <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index +'_cnt'"></div>
+                  <div
+                    class="toggleReads" 
+                    @click="toggleReadsToShow"
+                    >Show coverage without duplicates
+                  </div>
+
                 </td>
               </tr>
               <tr class="coverage-plot-tr-container">
-                <td colspan="8">
+                <td colspan="8" >
                   <i-coverage-plot 
                   :ref="file.name + '_plot'"
-                  :plus="file.seqDetails.ref.coverage.plus"
-                  :minus="file.seqDetails.ref.coverage.minus"
-                  :position="file.seqDetails.ref.coverage.position"
+                  :dataset="index"
+                  :selection="readsToShow"
                     />
                 </td>
               </tr>
@@ -117,7 +121,8 @@ export default {
   data (){
     return{
       loading: false,
-      files: []
+      files: [],
+      readsToShow: 'total'
     }
   },
   methods: {
@@ -125,6 +130,11 @@ export default {
       console.log(store.state.csvProcessedFiles)
       console.log(this.datasets)
 
+    },
+    toggleReadsToShow (){
+      console.log(this.readsToShow)
+      this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
+      console.log(this.readsToShow)
     },
     fixedNumber (n) {
       return n.toFixed(1)
@@ -167,7 +177,7 @@ export default {
     datasets () {
       const datasets = store.state.csvProcessedFiles.map(file => file.seqDetails.dataset)
       return new Set(datasets)
-    }
+    },
   },
 };
 </script>
@@ -222,7 +232,14 @@ button
 .reads-details-tr-container:nth-child(even)
   border-left 2px solid black
 
+.toggleReads
+  background: lightpink
+  padding 0.5rem
+  border-radius 5px
 
+  &:hover
+    filter: drop-shadow(1px 1px 10px grey)
+    filter: invert(100%)
 
 .barplot-bar
   background: gray
@@ -238,6 +255,8 @@ button
     &:hover
         filter: drop-shadow(1px 1px 10px grey)
         filter: invert(100%)
+        filter: drop-shadow(1px 1px 3px gray)
+        font-weight 600
 .run-title
     align-self: start
 .run-item

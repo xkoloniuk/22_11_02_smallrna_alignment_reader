@@ -35,10 +35,19 @@ function splitMultiFasta(target, name) {
         seq: tmpSeq,
         seqLength: tmpSeq.length,
         coverage: {
-          minus: lengthLongZeroes,
-          plus: lengthLongZeroes,
-          position: lengthLongZeroes.map((_ , i) => 1 + i)
-        }
+          countRev: 0,
+          countFrw: 0,
+          total: {
+            minus: lengthLongZeroes,
+            plus: lengthLongZeroes,
+            position: lengthLongZeroes.map((_ , i) => 1 + i)
+          },
+          unique: {
+            minus: lengthLongZeroes,
+            plus: lengthLongZeroes,
+            position: lengthLongZeroes.map((_ , i) => 1 + i)
+          }
+        },
     } 
     return
   }
@@ -50,13 +59,30 @@ function splitMultiFasta(target, name) {
       seqLength: tmpSeq.length,
       start: gapsBeforeSeq?.length || 0,
       end: gapsBeforeSeq?.length || 0 ? tmpSeq.length : tmpSeq.length + gapsBeforeSeq?.length,
-      orientation: tmpFirstLine.endsWith('reversed)') ? 'reverse' : 'forward',
+      reverse: tmpFirstLine.endsWith('reversed)'),
     }
-    const seqArr = Array.from({length: unit.seqLength}).fill(0).map((_ , i) => 1 + i + unit.start)
-
-    if(tmpFirstLine.endsWith('reversed)')) {
-      seqArr.map(pos => ref.coverage.minus[pos]-- )
-    } else { seqArr.map(pos => ref.coverage.plus[pos]++) }
+    const readLength = Array.from({length: unit.seqLength}).fill(0).map((_ , i) => 1 + i + unit.start)
+// TODO
+//something wrong with coverage calculations
+    if(unit.reverse) {
+      if (unit.unique === true) {
+        readLength.map(pos => {
+          // ref.coverage.total.minus[pos]--
+          ref.coverage.unique.minus[pos]--
+        })
+        } else { 
+          // readLength.map(pos => ref.coverage.total.minus[pos]-- ) 
+        } 
+    } else { 
+      if (unit.unique === true) {
+        readLength.map(pos => {
+          // ref.coverage.total.plus[pos]++
+          ref.coverage.unique.plus[pos]++
+        })
+      } else {
+        // readLength.map(pos =>  ref.coverage.total.plus[pos]++ )
+      }
+    }
 
     reads.push(unit)
 
@@ -64,7 +90,7 @@ function splitMultiFasta(target, name) {
   )
 
 
-  const countReverseReads = reads.filter(read => read.orientation === 'reverse').length
+  const countReverseReads = reads.filter(read => read.reverse).length
   // const frRvRatio = countReverseReads
   const frRvRatio = ((reads.length - countReverseReads) / countReverseReads).toFixed(1)
 
