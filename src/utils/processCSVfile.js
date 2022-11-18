@@ -29,7 +29,7 @@ function splitMultiFasta(target, name) {
     const gapsBeforeSeq = tmpSecondLine.match(regexGaps)[0];
 
     if(i === 1) {
-      const lengthLongZeroes = Array.from({length:tmpSeq.length}).fill(0)
+      const zeroesArray = Array.from({length:tmpSeq.length}).fill(0)
       ref = {
         seqName: tmpFirstLine,
         seq: tmpSeq,
@@ -38,14 +38,14 @@ function splitMultiFasta(target, name) {
           countRev: 0,
           countFrw: 0,
           total: {
-            minus: lengthLongZeroes,
-            plus: lengthLongZeroes,
-            position: lengthLongZeroes.map((_ , i) => 1 + i)
+            minus: zeroesArray.slice(),
+            plus: zeroesArray.slice(),
+            position: zeroesArray.map((_ , i) => 1 + i)
           },
           unique: {
-            minus: lengthLongZeroes,
-            plus: lengthLongZeroes,
-            position: lengthLongZeroes.map((_ , i) => 1 + i)
+            minus: zeroesArray.slice(),
+            plus: zeroesArray.slice(),
+            position: zeroesArray.map((_ , i) => 1 + i)
           }
         },
     } 
@@ -67,20 +67,20 @@ function splitMultiFasta(target, name) {
     if(unit.reverse) {
       if (unit.unique === true) {
         readLength.map(pos => {
-          // ref.coverage.total.minus[pos]--
+          ref.coverage.total.minus[pos]--
           ref.coverage.unique.minus[pos]--
         })
         } else { 
-          // readLength.map(pos => ref.coverage.total.minus[pos]-- ) 
+          readLength.map(pos => ref.coverage.total.minus[pos]-- ) 
         } 
     } else { 
       if (unit.unique === true) {
         readLength.map(pos => {
-          // ref.coverage.total.plus[pos]++
+          ref.coverage.total.plus[pos]++
           ref.coverage.unique.plus[pos]++
         })
       } else {
-        // readLength.map(pos =>  ref.coverage.total.plus[pos]++ )
+        readLength.map(pos =>  ref.coverage.total.plus[pos]++ )
       }
     }
 
