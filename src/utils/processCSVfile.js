@@ -62,8 +62,7 @@ function splitMultiFasta(target, name) {
       reverse: tmpFirstLine.endsWith('reversed)'),
     }
     const readLength = Array.from({length: unit.seqLength}).fill(0).map((_ , i) => 1 + i + unit.start)
-// TODO
-//something wrong with coverage calculations
+
     if(unit.reverse) {
       if (unit.unique === true) {
         readLength.map(pos => {

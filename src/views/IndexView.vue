@@ -91,8 +91,8 @@
                 <td colspan="8" >
                   <i-coverage-plot 
                   :ref="file.name + '_plot'"
-                  :dataset="index"
-                  :selection="readsToShow"
+                  :reads="readsVariantSpecific (index)"
+                  :refLength="file.seqDetails.ref.seqLength"
                     />
                 </td>
               </tr>
@@ -131,10 +131,11 @@ export default {
       console.log(this.datasets)
 
     },
-    toggleReadsToShow (){
-      console.log(this.readsToShow)
+    onToggledData () {
       this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
-      console.log(this.readsToShow)
+    },
+    toggleReadsToShow (){
+      this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
     },
     fixedNumber (n) {
       return n.toFixed(1)
@@ -164,6 +165,20 @@ export default {
       this.loading = true;
   
 
+      return variantSpecific
+    },
+    readsVariantSpecific (index){
+      const comparedSeqs = store.state.csvProcessedFiles[index].seqDetails.reads;
+      const currentDataset = store.state.csvProcessedFiles[index].seqDetails.dataset
+      const currentVirus = store.state.csvProcessedFiles[index].seqDetails.virus
+      const currentRef = store.state.csvProcessedFiles[index].seqDetails.ref.seqName
+      const otherVariantsFromTheSameDataset = store.state.csvProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
+
+
+      const otherSeqs = new Set (otherVariantsFromTheSameDataset.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
+      const variantSpecific = comparedSeqs.filter(read => !otherSeqs.has(read));
+      this.loading = true;
+  
       return variantSpecific
     },
     commonBetweenTwo(a,b){
@@ -211,7 +226,7 @@ button
 
 .table-container
   max-width: 70%
-  margin 2rem auto
+  margin 2rem 2rem
   text-align: left
 
 .table-mapped-overview
