@@ -2,7 +2,7 @@
   <nav>
   <i-button-reset />
 
-    <router-link to="/">Home</router-link>
+    <router-link to="/">Mappings</router-link>
     <router-link to="/comparisons">Comparisons</router-link>
     <router-link to="/reads-datasets">Read Datasets</router-link>
   </nav>

@@ -17,7 +17,7 @@ export default {
   },
   computed: {
     showButton() {
-      return store.state.csvProcessedFiles.length >= 1;
+      return store.state.fastaProcessedFiles.length >= 1;
     },
   },
 };

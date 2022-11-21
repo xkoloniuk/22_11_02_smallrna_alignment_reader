@@ -1,18 +1,21 @@
 <template>
 
   <div class="container">
-    <h1 v-show="!csvProcessedFiles.length">Upload mapping of small RNA in FASTA format</h1>
+    <h1 v-show="!fastaProcessedFiles.length">Upload mapping of small RNA in FASTA format</h1>
     <div @click="showStore" >show processed fasta data</div>
     <input
-      v-if="!csvProcessedFiles.length"
-      ref="csvLoader"
+      v-if="!fastaProcessedFiles.length"
+      ref="fastaLoader"
       type="file"
       accept=".fasta"
       multiple
-      @change="showFiles"
+      @change="processFastaMappings"
     />
     <div v-else class="file-list">
-      <div class="header"> {{ 'Recieved data: ' + csvProcessedFiles.length +' files' }} </div>
+      <div :class="{ header: true,
+        'limegreen-bg': fastaProcessedFiles.length === filesCount
+      }"> 
+      {{ 'Recieved data: ' + fastaProcessedFiles.length +' out of ' + filesCount +' files'  }} </div>
 
       <div v-show="loading" class="table-container"> 
         <table class="table-mapped-overview">
@@ -40,15 +43,15 @@
                 Variant specific (%)
               </th>
               <th>
-                Barplot
-                <div class="barplot-bar" :style="{width: '200px', background: 'darkorange', 'font-size': '0.75rem', 'text-align': 'right'}" :ref="index+'_cnt'">Scale: 10,000 reads</div>
+         
+                <!-- <div class="barplot-bar" :style="{width: '200px', background: 'darkorange', 'font-size': '0.75rem', 'text-align': 'right'}" ref="Count scale">Scale: 10,000 reads</div> -->
 
               </th>
             </tr>
           </thead>
 
           <tbody>
-            <template v-for="(file, index) in csvProcessedFiles"
+            <template v-for="(file, index) in fastaProcessedFiles"
               :key="'file' + index">
 
               <tr class="reads-details-tr-container">  
@@ -62,7 +65,9 @@
                   {{ file.seqDetails.ref.seqName }}
                 </td>
                 <td>
-                  {{ file.seqDetails.totalCount }}
+                  <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index +'_cnt'">
+                    {{ file.seqDetails.totalCount }}
+                  </div>
                   <i-length-barplot :data="file.seqDetails.reads.map(item => item.seq)" />
                 </td>
                 <td>
@@ -77,21 +82,21 @@
                   {{ getVariantSpecific(index).length + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index).length / file.seqDetails.totalCount)) + '%)' }}
                   <i-length-barplot :data="getVariantSpecific(index)"/>
                 </td>
-                <td >
-                  <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index +'_cnt'"></div>
-                  <div
-                    class="toggleReads" 
-                    @click="toggleReadsToShow"
-                    >Show coverage without duplicates
-                  </div>
+                <td class="v-align-btm">
+
+                  <button
+                    class="show-coverage-plot" 
+                    @click="toggleToShow(index)">
+                    Show coverage plot
+                  </button>
 
                 </td>
               </tr>
               <tr class="coverage-plot-tr-container">
-                <td colspan="8" >
+                <td v-if="showPlot[index]" colspan="8" >
                   <i-coverage-plot 
                   :ref="file.name + '_plot'"
-                  :reads="readsVariantSpecific (index)"
+                  :reads="readsVariantSpecific(index)"
                   :refLength="file.seqDetails.ref.seqLength"
                     />
                 </td>
@@ -110,54 +115,58 @@
 import store from "@/store/index";
 import ILengthBarplot from "@/components/ILengthBarplot.vue"
 import ICoveragePlot from "@/components/ICoveragePlot.vue"
-import processCsvFile from "@/utils/processCSVfile.js";
+import processFastaMappingFile from "@/utils/processFastaMappingFile.js";
 
 
 export default {
   name: "IndexView",
   components: {
-    ILengthBarplot, ICoveragePlot
+    ILengthBarplot, 
+    ICoveragePlot
   },
   data (){
     return{
       loading: false,
-      files: [],
-      readsToShow: 'total'
+      filesCount: 0,
+      showPlot: {}
     }
   },
   methods: {
     showStore (){
-      console.log(store.state.csvProcessedFiles)
+      console.log(store.state.fastaProcessedFiles)
       console.log(this.datasets)
+      console.log(this.filesCount)
 
     },
     onToggledData () {
       this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
     },
-    toggleReadsToShow (){
-      this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
+    toggleToShow (index){
+      this.showPlot[index] = !this.showPlot[index]
     },
     fixedNumber (n) {
       return n.toFixed(1)
     },
-    showFiles() {
-      for (const file of this.$refs.csvLoader.files) {
+    processFastaMappings() {
+      this.filesCount = this.$refs.fastaLoader.files.length
+
+      for (const file of this.$refs.fastaLoader.files) {
         file
           .text()
           .then((data) => data)
           .then((data) => {
-            const nameAndSeq = {name: file.name, seqDetails: processCsvFile(data, file.name)}
+            const nameAndSeq = {name: file.name, seqDetails: processFastaMappingFile(data, file.name)}
             store.commit("addEntry", nameAndSeq);
           })
           .catch((e) => console.error(e));
       }
     },
     getVariantSpecific (index){
-      const comparedSeqs = store.state.csvProcessedFiles[index].seqDetails.reads.map(read => read.seq);
-      const currentDataset = store.state.csvProcessedFiles[index].seqDetails.dataset
-      const currentVirus = store.state.csvProcessedFiles[index].seqDetails.virus
-      const currentRef = store.state.csvProcessedFiles[index].seqDetails.ref.seqName
-      const otherVariantsFromTheSameDataset = store.state.csvProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
+      const comparedSeqs = store.state.fastaProcessedFiles[index].seqDetails.reads.map(read => read.seq);
+      const currentDataset = store.state.fastaProcessedFiles[index].seqDetails.dataset
+      const currentVirus = store.state.fastaProcessedFiles[index].seqDetails.virus
+      const currentRef = store.state.fastaProcessedFiles[index].seqDetails.ref.seqName
+      const otherVariantsFromTheSameDataset = store.state.fastaProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
 
 
       const otherSeqs = new Set (otherVariantsFromTheSameDataset.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
@@ -168,11 +177,11 @@ export default {
       return variantSpecific
     },
     readsVariantSpecific (index){
-      const comparedSeqs = store.state.csvProcessedFiles[index].seqDetails.reads;
-      const currentDataset = store.state.csvProcessedFiles[index].seqDetails.dataset
-      const currentVirus = store.state.csvProcessedFiles[index].seqDetails.virus
-      const currentRef = store.state.csvProcessedFiles[index].seqDetails.ref.seqName
-      const otherVariantsFromTheSameDataset = store.state.csvProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
+      const comparedSeqs = store.state.fastaProcessedFiles[index].seqDetails.reads;
+      const currentDataset = store.state.fastaProcessedFiles[index].seqDetails.dataset
+      const currentVirus = store.state.fastaProcessedFiles[index].seqDetails.virus
+      const currentRef = store.state.fastaProcessedFiles[index].seqDetails.ref.seqName
+      const otherVariantsFromTheSameDataset = store.state.fastaProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
 
 
       const otherSeqs = new Set (otherVariantsFromTheSameDataset.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
@@ -186,11 +195,11 @@ export default {
     },
   },
   computed: {
-    csvProcessedFiles() {
-         return store.state.csvProcessedFiles;
+    fastaProcessedFiles() {
+         return store.state.fastaProcessedFiles;
     },
     datasets () {
-      const datasets = store.state.csvProcessedFiles.map(file => file.seqDetails.dataset)
+      const datasets = store.state.fastaProcessedFiles.map(file => file.seqDetails.dataset)
       return new Set(datasets)
     },
   },
@@ -206,9 +215,13 @@ h1
   font-size 1.5rem
   font-weight bold
   margin 0 auto
-  background limegreen
   padding 1rem
+  background: orange
   border-radius 5px
+.limegreen-bg
+  background: limegreen
+.orange-bg
+  background: orange
 
 .container
     width 100%
@@ -218,6 +231,9 @@ input::file-selector-button
     font-size 1rem
     color blue
     border-radius 5px
+
+.v-align-btm
+  vertical-align: bottom
 button
     display block
     margin 10px auto
@@ -247,14 +263,17 @@ button
 .reads-details-tr-container:nth-child(even)
   border-left 2px solid black
 
-.toggleReads
-  background: lightpink
+.show-coverage-plot
+  // background: lightpink
+  // margin-top 50%
   padding 0.5rem
+  border 1px solid black
   border-radius 5px
-
+  font-size: 0.75rem
+  // justify-content: center
   &:hover
     filter: drop-shadow(1px 1px 10px grey)
-    filter: invert(100%)
+    filter: invert(40%)
 
 .barplot-bar
   background: gray

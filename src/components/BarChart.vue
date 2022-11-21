@@ -97,18 +97,18 @@ export default {
       chartOptions: {
         responsive: true,
       },
-      options: {
-        scales: {
-          y: {
-            type: 'logarithmic',
-            max: 50
-            // ticks: {
-            //   min: 3,
-            //   beginAtZero: true
-            //       }
-          }
-        }
-      },
+      // options: {
+      //   scales: {
+      //     y: {
+      //       type: 'logarithmic',
+      //       max: 50
+      //       // ticks: {
+      //       //   min: 3,
+      //       //   beginAtZero: true
+      //       //       }
+      //     }
+      //   }
+      // },
       }
 
   },

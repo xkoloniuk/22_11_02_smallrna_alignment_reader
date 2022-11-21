@@ -2,22 +2,22 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    csvProcessedFiles: [],
+    fastaProcessedFiles: [],
     readsDatasets: []
   },
   getters: {},
   mutations: {
     addEntry(state, payload) {
-      state.csvProcessedFiles.push(payload);
+      state.fastaProcessedFiles.push(payload);
     },
     addReadsDataset(state, payload) {
       state.readsDatasets.push(payload);
     },
     removeEntry(state, index) {
-      state.csvProcessedFiles.splice(index, 1);
+      state.fastaProcessedFiles.splice(index, 1);
     },
     resetFiles(state) {
-      state.csvProcessedFiles = [];
+      state.fastaProcessedFiles = [];
     },
   },
   actions: {},
