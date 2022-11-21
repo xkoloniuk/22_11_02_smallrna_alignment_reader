@@ -2,7 +2,7 @@
     <div class="barplot">
         <div v-for="length in Object.keys(binByLength.lengthCounts)" 
             :key="length + 'len'"
-            :style="{height: (200 / binByLength.max) * binByLength.lengthCounts[length] + 'px' }"
+            :style="{height: (100 / binByLength.max) * binByLength.lengthCounts[length] + 'px' }"
             class="barplot-bar"
             >
             <span>

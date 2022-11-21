@@ -148,7 +148,8 @@ export default {
       return n.toFixed(1)
     },
     processFastaMappings() {
-      this.filesCount = this.$refs.fastaLoader.files.length
+      // TODO fix reset of files count, i.e. change of header from green to orange
+      if(this.$refs.fastaLoader.files.length > 1) this.filesCount = this.$refs.fastaLoader.files.length
 
       for (const file of this.$refs.fastaLoader.files) {
         file
