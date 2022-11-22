@@ -1,5 +1,5 @@
 <template>
-<bar-chart 
+<coverage-bar-chart 
     :barPosChartData="computedCoverage.position" 
     :barMinusChartData="computedCoverage.minus" 
     :barPlusChartData="computedCoverage.plus" />
@@ -7,13 +7,13 @@
 </template>
 
 <script>
-import BarChart from '@/components/BarChart.vue'
+import CoverageBarChart from '@/components/CoverageBarChart.vue'
 // import store from "@/store/index";
 
     export default {
         name: 'ICoveragePlot',
         components: {
-            BarChart
+            CoverageBarChart
         },
         data () {
             return {

@@ -18,7 +18,6 @@ import {
   Chart as ChartJS,
   Title,
   Tooltip,
-  Legend,
   BarElement,
   CategoryScale,
   LinearScale,
@@ -27,14 +26,13 @@ import {
 ChartJS.register(
   Title,
   Tooltip,
-  Legend,
   BarElement,
   CategoryScale,
   LinearScale
 );
 
 export default {
-  name: "BarChart",
+  name: "SizeDistibutionBarChart",
   components: { Bar },
   props: {
     chartId: {
@@ -47,11 +45,11 @@ export default {
     },
     width: {
       type: Number,
-      default: 1400,
+      default: 200,
     },
     height: {
       type: Number,
-      default: 300,
+      default: 150,
     },
     cssClasses: {
       default: "",
@@ -65,9 +63,8 @@ export default {
       type: Object,
       default: () => {},
     },
-    barPlusChartData: Array,
-    barMinusChartData: Array,
-    barPosChartData: Array,
+    lengthData: Object
+
   },
   watch: {
     chartData: function() {
@@ -78,25 +75,31 @@ export default {
   data() {
     return {
       chartData: {
-        labels: this.barPosChartData,
+        labels: Object.keys(this.lengthData),
         datasets: [
           {
-            label: "plus",
-            data: this.barPlusChartData,
+            data: Object.values(this.lengthData),
             backgroundColor: "black",
           },
-          {
-            label: "minus",
-            data: this.barMinusChartData,
-            backgroundColor: "red",
-          },
+
         ],
-        // TODO
-        // add custom scales
       },
       chartOptions: {
         responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+        }
       },
+    //   options: {
+    //     plugins: {
+    //         legend: {
+    //             display: false
+    //         },
+    //     }
+    // }
+
       // options: {
       //   scales: {
       //     y: {

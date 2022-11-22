@@ -1,6 +1,6 @@
 <template>
     <div class="barplot">
-        <div v-for="length in Object.keys(binByLength.lengthCounts)" 
+        <!-- <div v-for="length in Object.keys(binByLength.lengthCounts)" 
             :key="length + 'len'"
             :style="{height: (100 / binByLength.max) * binByLength.lengthCounts[length] + 'px' }"
             class="barplot-bar"
@@ -8,16 +8,27 @@
             <span>
                 {{ length }}
             </span>
-        </div>
-        </div>
+        </div> -->
+        <size-distibution-bar-chart 
+            :lengthData="binByLength.lengthCounts" />
+    </div>
 </template>
 
 <script>
+import SizeDistibutionBarChart from '@/components/SizeDistibutionBarChart.vue'
 
 export default {
     name: "ILengthBarplot",
+    components: {
+            SizeDistibutionBarChart
+        },
     props: {
         data: Array
+    },
+    created (){
+        console.log(this.binByLength)
+
+
     },
     methods:{
         showBinData (){
@@ -25,6 +36,9 @@ export default {
         }
     },
     computed: {
+        importedData (){
+            return this.data
+        },
         binByLength (){
            const lengthCounts = this.data.reduce((acc, cur) =>{
                 return acc[cur.length] ? ++acc[cur.length] : acc[cur.length] = 1, acc

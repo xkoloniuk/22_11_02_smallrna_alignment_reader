@@ -31,13 +31,10 @@
                 Reference
               </th>
               <th>
-                Mapped reads
+                Mapped reads (nonredundant)
               </th>
               <th>
                 Forward/Reverse balance
-              </th>
-              <th>
-                Nonredundant, %
               </th>
               <th>
                 Variant specific (%)
@@ -65,36 +62,46 @@
                   {{ file.seqDetails.ref.seqName }}
                 </td>
                 <td>
-                  <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index +'_cnt'">
-                    {{ file.seqDetails.totalCount }}
+                  <div class="barplot-reads">
+                    <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index +'_cnt'">
+                    </div>
+                    <span>
+                      {{ file.seqDetails.totalCount + '  (' + file.seqDetails.nonRedundantPerc + '%)' }}
+                    </span>
+                    
                   </div>
-                  <i-length-barplot :data="file.seqDetails.reads.map(item => item.seq)" />
+                  <i-length-barplot 
+                  v-if="showSizeDistributionPlot[index]"
+                  :data="file.seqDetails.reads.map(item => item.seq)" />
                 </td>
                 <td>
                   {{ file.seqDetails.frRvRatio }}
                 </td>
-                <td>
-                  {{ file.seqDetails.nonRedundantPerc }}
-                  <i-length-barplot :data="file.seqDetails.uniqueReads"/>
 
-                </td>
                 <td>
                   {{ getVariantSpecific(index).length + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index).length / file.seqDetails.totalCount)) + '%)' }}
-                  <i-length-barplot :data="getVariantSpecific(index)"/>
+                  <i-length-barplot 
+                  v-if="showSizeDistributionPlot[index]"
+                  :data="getVariantSpecific(index)"/>
                 </td>
                 <td class="v-align-btm">
 
                   <button
+                    class="show-size-distribution-plot" 
+                    @click="toggleToShowSizeDistributionPlot(index)">
+                    Show size dist plot
+                  </button>
+                  <button
                     class="show-coverage-plot" 
-                    @click="toggleToShow(index)">
+                    @click="toggleToShowCoveragePlot(index)">
                     Show coverage plot
                   </button>
 
                 </td>
               </tr>
               <tr class="coverage-plot-tr-container">
-                <td v-if="showPlot[index]" colspan="8" >
-                  <i-coverage-plot 
+                <td v-if="showCoveragePlot[index]" colspan="8" >
+                  <i-coverage-container 
                   :ref="file.name + '_plot'"
                   :reads="readsVariantSpecific(index)"
                   :refLength="file.seqDetails.ref.seqLength"
@@ -114,7 +121,7 @@
 <script>
 import store from "@/store/index";
 import ILengthBarplot from "@/components/ILengthBarplot.vue"
-import ICoveragePlot from "@/components/ICoveragePlot.vue"
+import ICoverageContainer from "@/components/ICoverageContainer.vue"
 import processFastaMappingFile from "@/utils/processFastaMappingFile.js";
 
 
@@ -122,13 +129,14 @@ export default {
   name: "IndexView",
   components: {
     ILengthBarplot, 
-    ICoveragePlot
+    ICoverageContainer
   },
   data (){
     return{
       loading: false,
       filesCount: 0,
-      showPlot: {}
+      showCoveragePlot: {},
+      showSizeDistributionPlot: {}
     }
   },
   methods: {
@@ -141,8 +149,11 @@ export default {
     onToggledData () {
       this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
     },
-    toggleToShow (index){
-      this.showPlot[index] = !this.showPlot[index]
+    toggleToShowCoveragePlot (index){
+      this.showCoveragePlot[index] = !this.showCoveragePlot[index]
+    },
+    toggleToShowSizeDistributionPlot (index){
+      this.showSizeDistributionPlot[index] = !this.showSizeDistributionPlot[index]
     },
     fixedNumber (n) {
       return n.toFixed(1)
@@ -275,10 +286,26 @@ button
   &:hover
     filter: drop-shadow(1px 1px 10px grey)
     filter: invert(40%)
+.show-size-distribution-plot
+  // background: lightpink
+  // margin-top 50%
+  padding 0.5rem
+  border 1px solid black
+  border-radius 5px
+  font-size: 0.75rem
+  // justify-content: center
+  &:hover
+    filter: drop-shadow(1px 1px 10px grey)
+    filter: invert(40%)
 
+.barplot-reads
+  padding-right: 2rem
+  display: flex
+  justify-content: space-between
 .barplot-bar
-  background: gray
+  background: #A27B5C
   height: 20px
+
 
 
 .exclude-btn
