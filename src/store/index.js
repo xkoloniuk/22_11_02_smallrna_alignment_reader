@@ -3,6 +3,7 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     fastaProcessedFiles: [],
+    fastaSelectedFilesCount: 0,
     readsDatasets: []
   },
   getters: {},
@@ -10,6 +11,9 @@ export default createStore({
     addEntry(state, payload) {
       state.fastaProcessedFiles.push(payload);
     },
+      setFastaSelectedFilesCount (state, payload){
+      state.fastaSelectedFilesCount = payload
+      },
     addReadsDataset(state, payload) {
       state.readsDatasets.push(payload);
     },

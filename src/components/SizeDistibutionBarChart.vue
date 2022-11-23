@@ -45,11 +45,11 @@ export default {
     },
     width: {
       type: Number,
-      default: 200,
+      default: 300,
     },
     height: {
       type: Number,
-      default: 150,
+      default: 250,
     },
     cssClasses: {
       default: "",
@@ -63,8 +63,8 @@ export default {
       type: Object,
       default: () => {},
     },
-    lengthData: Object
-
+    lengthData: Object,
+    lengthDataVariants: Object,
   },
   watch: {
     chartData: function() {
@@ -72,14 +72,23 @@ export default {
       this.renderChart(this.chartData);
     }
 },
+created (){
+  // console.log(this.lengthDataVariants)
+},
   data() {
     return {
       chartData: {
         labels: Object.keys(this.lengthData),
         datasets: [
           {
+            label: 'total',
             data: Object.values(this.lengthData),
             backgroundColor: "black",
+          },
+          {
+            label: 'variant-specific',
+            data: Object.values(this.lengthDataVariants),
+            backgroundColor: "red",
           },
 
         ],
@@ -87,9 +96,17 @@ export default {
       chartOptions: {
         responsive: true,
         plugins: {
-            legend: {
-                display: false
-            },
+            // legend: {
+            //     display: false
+            // },
+            scales: {
+              xAxes: [
+                {stacked: true}
+              ],
+              yAxes: [
+                {stacked: true}
+              ]
+            }
         }
       },
     //   options: {

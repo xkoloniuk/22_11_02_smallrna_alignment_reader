@@ -10,7 +10,8 @@
             </span>
         </div> -->
         <size-distibution-bar-chart 
-            :lengthData="binByLength.lengthCounts" />
+            :lengthData="binByLength.lengthCounts" 
+            :lengthDataVariants="binByLength.lengthCountsVariants"/>
     </div>
 </template>
 
@@ -23,10 +24,11 @@ export default {
             SizeDistibutionBarChart
         },
     props: {
-        data: Array
+        data: Array,
+        dataVariants: Array
     },
     created (){
-        console.log(this.binByLength)
+        // console.log(this.dataVariants)
 
 
     },
@@ -43,7 +45,11 @@ export default {
            const lengthCounts = this.data.reduce((acc, cur) =>{
                 return acc[cur.length] ? ++acc[cur.length] : acc[cur.length] = 1, acc
             },{})
-            return {max: Math.max(...Object.values(lengthCounts)), lengthCounts}
+           const lengthCountsVariants = this.dataVariants.reduce((acc, cur) =>{
+                return acc[cur.length] ? ++acc[cur.length] : acc[cur.length] = 1, acc
+            },{})
+            
+            return {max: Math.max(...Object.values(lengthCounts)), lengthCounts, lengthCountsVariants}
         }
     }
 }

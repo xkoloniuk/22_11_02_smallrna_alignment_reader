@@ -13,10 +13,25 @@
     />
     <div v-else class="file-list">
       <div :class="{ header: true,
-        'limegreen-bg': fastaProcessedFiles.length === filesCount
-      }"> 
-      {{ 'Recieved data: ' + fastaProcessedFiles.length +' out of ' + filesCount +' files'  }} </div>
-
+          'limegreen-bg': allFilesRead
+          }"> 
+          <span>{{ allFilesRead ? 'Done, recieved ' : 'Recieving data: ' }}  </span>
+          <span>{{ fastaProcessedFiles.length +' out of ' + fastaSelectedFilesCount +' files'  }} </span>
+       </div>
+       <div>
+        <button
+                    class="show-size-distribution-plot" 
+                    @click="toggleToShowSizeDistributionPlot('all')"
+                    id="showAllSizeDistributionPlots">
+                    Show all size dist plots
+                  </button>
+                  <button
+                    class="show-coverage-plot" 
+                    @click="toggleToShowCoveragePlot('all')"
+                    id="toggleToShowCoveragePlot">
+                    Show all coverage plots
+                  </button>
+       </div>
       <div v-show="loading" class="table-container"> 
         <table class="table-mapped-overview">
           <thead>
@@ -71,8 +86,9 @@
                     
                   </div>
                   <i-length-barplot 
-                  v-if="showSizeDistributionPlot[index]"
-                  :data="file.seqDetails.reads.map(item => item.seq)" />
+                  v-if="showSizeDistributionPlot[index] || showAllSizeDistributionPlots"
+                  :data="file.seqDetails.reads.map(item => item.seq)"
+                  :dataVariants="getVariantSpecific(index)"/>
                 </td>
                 <td>
                   {{ file.seqDetails.frRvRatio }}
@@ -80,23 +96,21 @@
 
                 <td>
                   {{ getVariantSpecific(index).length + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index).length / file.seqDetails.totalCount)) + '%)' }}
-                  <i-length-barplot 
-                  v-if="showSizeDistributionPlot[index]"
-                  :data="getVariantSpecific(index)"/>
+
                 </td>
                 <td class="v-align-btm">
 
                   <button
                     class="show-size-distribution-plot" 
-                    @click="toggleToShowSizeDistributionPlot(index)"
+                    @click="showSizeDistributionPlot[index] = !showSizeDistributionPlot[index]"
                     :ref="'showSizeDistributionPlot'+ index">
-                    Show size dist plot
+                    {{ ' size dist plot'}}
                   </button>
                   <button
                     class="show-coverage-plot" 
                     @click="toggleToShowCoveragePlot(index)"
                     :ref="'showCoveragePlot'+ index">
-                    Show coverage plot
+                    {{  +' coverage plot'}}
                   </button>
 
                 </td>
@@ -136,16 +150,22 @@ export default {
   data (){
     return{
       loading: false,
-      filesCount: 0,
       showCoveragePlot: {},
-      showSizeDistributionPlot: {}
+      showSizeDistributionPlot: {},
+      showAllSizeDistributionPlots: false
     }
+  },
+  updated (){
+    // this.fastaProcessedFiles.map((_, i) => this.showSizeDistributionPlot[i] = false)
+    // console.log(this.showSizeDistributionPlot)
+
+    Object.keys(this.showSizeDistributionPlot).map((_, i) => this.showSizeDistributionPlot[i] = !this.showSizeDistributionPlot[i])
   },
   methods: {
     showStore (){
       console.log(store.state.fastaProcessedFiles)
       console.log(this.datasets)
-      console.log(this.filesCount)
+
 
     },
     onToggledData () {
@@ -159,11 +179,21 @@ export default {
 
 
     },
-    toggleToShowSizeDistributionPlot (index){
-      this.showSizeDistributionPlot[index] = !this.showSizeDistributionPlot[index]
-      const el = this.$refs['showSizeDistributionPlot'+ index][0]
-      el.textContent = this.showSizeDistributionPlot[index] ? 'Hide size dist plot' : 'Show size dist plot'
-      el.classList.toggle('thick-border')
+    toggleToShowSizeDistributionPlot (par){
+
+      if (par === 'all') {
+        console.log('all')
+          this.showAllSizeDistributionPlots = !this.showAllSizeDistributionPlots
+          const el = document.querySelector('#showAllSizeDistributionPlots')
+        el.textContent = this.showAllSizeDistributionPlots ? 'ALL: Hide size dist plots' : 'ALL: Show size dist plots'
+        el.classList.toggle('thick-border')
+
+      } else { 
+        this.showSizeDistributionPlot[par] = !this.showSizeDistributionPlot[par]
+        const el = this.$refs['showSizeDistributionPlot'+ par][0]
+        el.textContent = this.showSizeDistributionPlot[par] ? 'Hide size dist plot' : 'Show size dist plot'
+        el.classList.toggle('thick-border')
+      }
 
     },
     fixedNumber (n) {
@@ -171,7 +201,7 @@ export default {
     },
     processFastaMappings() {
       // TODO fix reset of files count, i.e. change of header from green to orange
-      if(this.$refs.fastaLoader.files.length > 1) this.filesCount = this.$refs.fastaLoader.files.length
+      if(this.$refs.fastaLoader.files.length > 1) store.commit('setFastaSelectedFilesCount', this.$refs.fastaLoader.files.length)
 
       for (const file of this.$refs.fastaLoader.files) {
         file
@@ -217,14 +247,22 @@ export default {
       return a + b
     },
   },
+  watch:{},
   computed: {
     fastaProcessedFiles() {
          return store.state.fastaProcessedFiles;
     },
+    fastaSelectedFilesCount() {
+         return store.state.fastaSelectedFilesCount;
+    },
+
     datasets () {
       const datasets = store.state.fastaProcessedFiles.map(file => file.seqDetails.dataset)
       return new Set(datasets)
     },
+    allFilesRead (){
+      return this.fastaProcessedFiles.length === this.fastaSelectedFilesCount
+    }
   },
 };
 </script>
