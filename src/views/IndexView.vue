@@ -88,12 +88,14 @@
 
                   <button
                     class="show-size-distribution-plot" 
-                    @click="toggleToShowSizeDistributionPlot(index)">
+                    @click="toggleToShowSizeDistributionPlot(index)"
+                    :ref="'showSizeDistributionPlot'+ index">
                     Show size dist plot
                   </button>
                   <button
                     class="show-coverage-plot" 
-                    @click="toggleToShowCoveragePlot(index)">
+                    @click="toggleToShowCoveragePlot(index)"
+                    :ref="'showCoveragePlot'+ index">
                     Show coverage plot
                   </button>
 
@@ -151,9 +153,18 @@ export default {
     },
     toggleToShowCoveragePlot (index){
       this.showCoveragePlot[index] = !this.showCoveragePlot[index]
+      const el = this.$refs['showCoveragePlot'+ index][0]
+      el.textContent = this.showCoveragePlot[index] ? 'Hide coverage plot' : 'Show coverage plot'
+      el.classList.toggle('thick-border')
+
+
     },
     toggleToShowSizeDistributionPlot (index){
       this.showSizeDistributionPlot[index] = !this.showSizeDistributionPlot[index]
+      const el = this.$refs['showSizeDistributionPlot'+ index][0]
+      el.textContent = this.showSizeDistributionPlot[index] ? 'Hide size dist plot' : 'Show size dist plot'
+      el.classList.toggle('thick-border')
+
     },
     fixedNumber (n) {
       return n.toFixed(1)
@@ -298,13 +309,20 @@ button
     filter: drop-shadow(1px 1px 10px grey)
     filter: invert(40%)
 
+.thick-border
+  border 1.5px solid blue
+  filter: drop-shadow(1px 1px 1px blue)
+
 .barplot-reads
   padding-right: 2rem
   display: flex
-  justify-content: space-between
+  flex-direction column
+  gap 10px
+  // align-items: center
+  // justify-content: space-between
 .barplot-bar
-  background: #A27B5C
-  height: 20px
+  background: #5e05b5
+  height: 3px
 
 
 

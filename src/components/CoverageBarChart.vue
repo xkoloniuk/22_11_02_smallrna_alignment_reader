@@ -94,18 +94,26 @@ export default {
       },
       chartOptions: {
         responsive: true,
+          scales: {
+          y: {
+            // type: 'logarithmic',
+            // max: 50,
+            // min: -50
+            // ticks: {
+            //   min: 3,
+            //   beginAtZero: true
+            //       }
+          }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+
+        }
       },
       // options: {
-      //   scales: {
-      //     y: {
-      //       type: 'logarithmic',
-      //       max: 50
-      //       // ticks: {
-      //       //   min: 3,
-      //       //   beginAtZero: true
-      //       //       }
-      //     }
-      //   }
+
       // },
       }
 
