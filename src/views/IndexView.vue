@@ -1,20 +1,20 @@
 <template>
 
   <div class="container">
-    <h1 v-show="!csvProcessedFiles.length">Upload mapping of small RNA in FASTA format</h1>
+    <h1 v-show="!processedFiles.length">Upload mapping of small RNA in FASTA format</h1>
     <div @click="showStore" >show processed fasta data</div>
     <input
-      v-if="!csvProcessedFiles.length"
+      v-if="!processedFiles.length"
       ref="csvLoader"
       type="file"
       accept=".fasta"
       multiple
-      @change="showFiles"
+      @change="processFiles"
     />
     <div v-else class="file-list">
-      <div class="header"> {{ 'Recieved data: ' + csvProcessedFiles.length +' files' }} </div>
+      <div class="header"> {{ 'Recieved data: ' + processedFiles.length +' files' }} </div>
 
-      <div v-show="loading" class="table-container"> 
+      <div v-if="!loading" class="table-container"> 
         <table class="table-mapped-overview">
           <thead>
             <tr>
@@ -39,16 +39,12 @@
               <th>
                 Variant specific (%)
               </th>
-              <th>
-                Barplot
-                <div class="barplot-bar" :style="{width: '200px', background: 'darkorange', 'font-size': '0.75rem', 'text-align': 'right'}" :ref="index+'_cnt'">Scale: 10,000 reads</div>
 
-              </th>
             </tr>
           </thead>
 
           <tbody>
-            <template v-for="(file, index) in csvProcessedFiles"
+            <template v-for="(file, index) in processedFiles"
               :key="'file' + index">
 
               <tr class="reads-details-tr-container">  
@@ -63,39 +59,65 @@
                 </td>
                 <td>
                   {{ file.seqDetails.totalCount }}
-                  <i-length-barplot :data="file.seqDetails.reads.map(item => item.seq)" />
                 </td>
                 <td>
                   {{ file.seqDetails.frRvRatio }}
                 </td>
                 <td>
                   {{ file.seqDetails.nonRedundantPerc }}
-                  <i-length-barplot :data="file.seqDetails.uniqueReads"/>
 
                 </td>
                 <td>
-                  {{ getVariantSpecific(index).length + ' ' + '(' + fixedNumber(100 * (getVariantSpecific(index).length / file.seqDetails.totalCount)) + '%)' }}
-                  <i-length-barplot :data="getVariantSpecific(index)"/>
+                  {{ filterFn(index, 'variantSpecific').length + ' ' + '(' + fixedNumber(100 * (filterFn(index, 'variantSpecific').length / file.seqDetails.totalCount)) + '%)' }}
                 </td>
-                <td >
-                  <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50 + 'px' }" :ref="index +'_cnt'"></div>
-                  <div
-                    class="toggleReads" 
-                    @click="toggleReadsToShow"
-                    >Show coverage without duplicates
-                  </div>
 
-                </td>
               </tr>
+
               <tr class="coverage-plot-tr-container">
-                <td colspan="8" >
+                <td colspan="3">
+                  <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
+                </td>
+                <td colspan="5" >
+                  all mapped  {{ filterFn(index, 'seq').length }}
                   <i-coverage-plot 
-                  :ref="file.name + '_plot'"
-                  :reads="readsVariantSpecific (index)"
+                  :reads="filterFn(index, 'seq')"
                   :refLength="file.seqDetails.ref.seqLength"
                     />
                 </td>
               </tr>
+
+              <tr class="coverage-plot-tr-container">
+                <td colspan="3">
+                    <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)"/>
+                </td>
+                <td colspan="5" >
+                  Variant specific {{ filterFn(index, 'variantSpecific').length }}
+
+                  <i-coverage-plot 
+                  :ref="file.name + '_plot'"
+                  :reads="filterFn(index, 'variantSpecific')"
+                  :refLength="file.seqDetails.ref.seqLength"
+                    />
+                </td>
+              </tr>
+
+              <tr class="coverage-plot-tr-container">
+                <td colspan="3">
+                      <i-length-barplot :data="filterFn(index, 'variantSpecificUnique').map(read => read.seq)"/>
+                </td>
+                <td colspan="5" >
+                  Variant specific without duplicates  {{ filterFn(index, 'variantSpecificUnique').length }}
+
+                  <i-coverage-plot 
+                  :ref="file.name + '_plot'"
+                  :reads="filterFn(index, 'variantSpecificUnique')"
+                  :refLength="file.seqDetails.ref.seqLength"
+                    />
+                </td>
+              </tr>
+
+
+
           </template>
 
           </tbody>
@@ -113,21 +135,21 @@ import ICoveragePlot from "@/components/ICoveragePlot.vue"
 import processCsvFile from "@/utils/processCSVfile.js";
 
 
+
 export default {
   name: "IndexView",
   components: {
-    ILengthBarplot, ICoveragePlot
+    ILengthBarplot, ICoveragePlot, 
   },
   data (){
     return{
-      loading: false,
       files: [],
       readsToShow: 'total'
     }
   },
   methods: {
     showStore (){
-      console.log(store.state.csvProcessedFiles)
+      console.log(store.state.processedFiles)
       console.log(this.datasets)
 
     },
@@ -140,59 +162,38 @@ export default {
     fixedNumber (n) {
       return n.toFixed(1)
     },
-    showFiles() {
+    processFiles() {
+
+      const filesCount = this.$refs.csvLoader.files.length;
+
       for (const file of this.$refs.csvLoader.files) {
         file
           .text()
           .then((data) => data)
           .then((data) => {
-            const nameAndSeq = {name: file.name, seqDetails: processCsvFile(data, file.name)}
+            const nameAndSeq = {name: file.name, seqDetails: processCsvFile(data, file.name), filesCount: filesCount}
             store.commit("addEntry", nameAndSeq);
           })
           .catch((e) => console.error(e));
       }
     },
-    getVariantSpecific (index){
-      const comparedSeqs = store.state.csvProcessedFiles[index].seqDetails.reads.map(read => read.seq);
-      const currentDataset = store.state.csvProcessedFiles[index].seqDetails.dataset
-      const currentVirus = store.state.csvProcessedFiles[index].seqDetails.virus
-      const currentRef = store.state.csvProcessedFiles[index].seqDetails.ref.seqName
-      const otherVariantsFromTheSameDataset = store.state.csvProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
 
-
-      const otherSeqs = new Set (otherVariantsFromTheSameDataset.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
-      const variantSpecific = comparedSeqs.filter(read => !otherSeqs.has(read));
-      this.loading = true;
-  
-
-      return variantSpecific
-    },
-    readsVariantSpecific (index){
-      const comparedSeqs = store.state.csvProcessedFiles[index].seqDetails.reads;
-      const currentDataset = store.state.csvProcessedFiles[index].seqDetails.dataset
-      const currentVirus = store.state.csvProcessedFiles[index].seqDetails.virus
-      const currentRef = store.state.csvProcessedFiles[index].seqDetails.ref.seqName
-      const otherVariantsFromTheSameDataset = store.state.csvProcessedFiles.filter(file => file.seqDetails.dataset === currentDataset && file.seqDetails.virus === currentVirus && file.seqDetails.ref.seqName !== currentRef)
-
-
-      const otherSeqs = new Set (otherVariantsFromTheSameDataset.map(file => file.seqDetails.reads.map(read => read.seq)).flat());
-      const variantSpecific = comparedSeqs.filter(read => !otherSeqs.has(read));
-      this.loading = true;
-  
-      return variantSpecific
-    },
-    commonBetweenTwo(a,b){
-      return a + b
+    filterFn (index, par){
+      return store.state.processedFiles[index].seqDetails.reads.filter(read => read[par])
     },
   },
   computed: {
-    csvProcessedFiles() {
-         return store.state.csvProcessedFiles;
+    processedFiles() {
+         return store.state.processedFiles;
+    },
+    loading() {
+      return store.state.loading
     },
     datasets () {
-      const datasets = store.state.csvProcessedFiles.map(file => file.seqDetails.dataset)
+      const datasets = store.state.processedFiles.map(file => file.seqDetails.dataset)
       return new Set(datasets)
     },
+
   },
 };
 </script>
@@ -230,14 +231,14 @@ button
   text-align: left
 
 .table-mapped-overview
-    background: lightblue
     border-collapse: collapse;
     width 100%
   &th,td
     padding 0.5rem
     vertical-align: top
-  &tr:nth-child(even)
-    background: white
+  &tr:nth-child(4n+1)
+    background: lightblue
+    // background: white
     margin 20px
 .coverage-plot-tr-container
   border-bottom 2px solid black

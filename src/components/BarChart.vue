@@ -51,7 +51,7 @@ export default {
     },
     height: {
       type: Number,
-      default: 300,
+      default: 200,
     },
     cssClasses: {
       default: "",
@@ -65,9 +65,7 @@ export default {
       type: Object,
       default: () => {},
     },
-    barPlusChartData: Array,
-    barMinusChartData: Array,
-    barPosChartData: Array,
+    barChartData: Object,
   },
   watch: {
     chartData: function() {
@@ -78,16 +76,16 @@ export default {
   data() {
     return {
       chartData: {
-        labels: this.barPosChartData,
+        labels: this.barChartData.position,
         datasets: [
           {
             label: "plus",
-            data: this.barPlusChartData,
+            data: this.barChartData.plus,
             backgroundColor: "black",
           },
           {
             label: "minus",
-            data: this.barMinusChartData,
+            data: this.barChartData.minus,
             backgroundColor: "red",
           },
         ],
@@ -98,6 +96,9 @@ export default {
         responsive: true,
       },
       options: {
+        labels: {
+          display: false
+        },
         scales: {
           y: {
             type: 'logarithmic',
@@ -112,5 +113,16 @@ export default {
       }
 
   },
+  methods: {
+    beforeUpdate(){
+            console.log('before Barchart update')
+        },
+        updated(){
+            console.log('Barchart updated')
+            // console.log(this.dataset)
+            // console.log(this.selection)
+            // console.log(this.coverage)
+        },
+  }
 };
 </script>

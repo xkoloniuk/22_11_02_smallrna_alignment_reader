@@ -29,11 +29,7 @@
                 Nonredundant, %
               </th>
 
-              <th>
-                Barplot
-                <div class="barplot-bar" :style="{width: '200px', background: 'darkorange', 'font-size': '0.75rem', 'text-align': 'right'}" :ref="index+'_cnt'">Scale: 10,000,000 reads</div>
 
-              </th>
             </tr>
           </thead>
 
@@ -50,10 +46,10 @@
               <td class="number-view">
                  {{ file.seqDetails.nonRedundantPerc }}
               </td>
-              <td >
-                <div class="barplot-bar" :style="{width: file.seqDetails.totalCount / 50000 + 'px' }" :ref="index + '_cnt'"></div>
-                
-              </td>
+              <td>
+                     <i-length-barplot :data="file.seqDetails.reads.map(item => item.seq)" />
+                </td>
+
             </tr>
           </tbody>
         </table>
@@ -68,11 +64,14 @@
 <script>
 import store from "@/store/index";
 import processFastaReads from "@/utils/processFastaReads.js";
+import ILengthBarplot from "@/components/ILengthBarplot.vue"
 
 
 export default {
   name: "DatasetView",
-
+  components: {
+    ILengthBarplot
+  },
   data (){
     return{
       loading: false,
@@ -83,7 +82,6 @@ export default {
   methods: {
     showStore (){
       console.log(store.state.readsDatasets)
-      // console.log(this.files)
     },
     fixedNumber (n) {
       return n.toFixed(1)
