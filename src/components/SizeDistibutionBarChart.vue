@@ -18,7 +18,6 @@ import {
   Chart as ChartJS,
   Title,
   Tooltip,
-  Legend,
   BarElement,
   CategoryScale,
   LinearScale,
@@ -27,14 +26,13 @@ import {
 ChartJS.register(
   Title,
   Tooltip,
-  Legend,
   BarElement,
   CategoryScale,
   LinearScale
 );
 
 export default {
-  name: "BarChart",
+  name: "SizeDistibutionBarChart",
   components: { Bar },
   props: {
     chartId: {
@@ -47,11 +45,11 @@ export default {
     },
     width: {
       type: Number,
-      default: 1400,
+      default: 300,
     },
     height: {
       type: Number,
-      default: 200,
+      default: 250,
     },
     cssClasses: {
       default: "",
@@ -65,7 +63,8 @@ export default {
       type: Object,
       default: () => {},
     },
-    barChartData: Object,
+    lengthData: Object,
+    lengthDataVariants: Object,
   },
   watch: {
     chartData: function() {
@@ -73,64 +72,65 @@ export default {
       this.renderChart(this.chartData);
     }
 },
+created (){
+  // console.log(this.lengthDataVariants)
+},
   data() {
     return {
       chartData: {
-        labels: this.barChartData.position,
+        labels: Object.keys(this.lengthData),
         datasets: [
           {
-            label: "plus",
-            data: this.barChartData.plus,
+            label: 'total',
+            data: Object.values(this.lengthData),
             backgroundColor: "black",
           },
           {
-            label: "minus",
-            data: this.barChartData.minus,
+            label: 'variant-specific',
+            data: Object.values(this.lengthDataVariants),
             backgroundColor: "red",
           },
+
         ],
       },
       chartOptions: {
         responsive: true,
-      },
-      options: {
-        labels: {
-          display: false
-        },
-        scales: {
-          y: {
-            // type: 'logarithmic',
-            // max: 50,
-            // min: -50
-            // ticks: {
-            //   min: 3,
-            //   beginAtZero: true
-            //       }
-          }
-        },
         plugins: {
-            legend: {
-                display: false
-            },
-
+            // legend: {
+            //     display: false
+            // },
+            scales: {
+              xAxes: [
+                {stacked: true}
+              ],
+              yAxes: [
+                {stacked: true}
+              ]
+            }
         }
       },
-      // options: {
+    //   options: {
+    //     plugins: {
+    //         legend: {
+    //             display: false
+    //         },
+    //     }
+    // }
 
+      // options: {
+      //   scales: {
+      //     y: {
+      //       type: 'logarithmic',
+      //       max: 50
+      //       // ticks: {
+      //       //   min: 3,
+      //       //   beginAtZero: true
+      //       //       }
+      //     }
+      //   }
       // },
       }
 
   },
-  methods: {
-    beforeUpdate(){
-            console.log('before Barchart update')
-        },
-        updated(){
-            console.log('Barchart updated')
-            // console.log(this.dataset)
-            // console.log(this.selection)
-            // console.log(this.coverage)
-        },
-  }
 };
 </script>

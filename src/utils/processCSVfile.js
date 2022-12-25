@@ -1,4 +1,4 @@
-const processCsvFile = function (file, name) {
+const processFastaMappingFile = function (file, name) {
   const arrayOfFastaEntries = splitMultiFasta(file, name);
   return arrayOfFastaEntries
 };
@@ -107,4 +107,4 @@ function splitMultiFasta(target, name) {
 
 }
 
-export default processCsvFile;
+export default processFastaMappingFile;

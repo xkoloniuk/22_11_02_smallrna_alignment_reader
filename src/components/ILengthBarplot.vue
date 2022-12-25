@@ -42,11 +42,11 @@ export default {
     padding 20px
 .barplot-bar
   background: gray
-  width: 20px
+  width: 10px
   position: relative
 .barplot-bar>span
     position absolute
     bottom -20px
-    font-size 0.8rem
+    font-size 0.4rem
     text-align center
 </style>
