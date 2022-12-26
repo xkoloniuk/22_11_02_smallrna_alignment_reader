@@ -15,6 +15,17 @@ export default createStore({
       if (state.processedFiles.length === payload.filesCount) {
         console.log("all obtained");
 
+
+        state.processedFiles.sort((a,b)=>{
+
+
+          if(a.seqDetails.dataset.localeCompare(b.seqDetails.dataset) > 0) {
+            return 1} else if (a.seqDetails.dataset.localeCompare(b.seqDetails.dataset) < 0) {
+              return -1} else {
+                return (a.seqDetails.ref.seqName).localeCompare(b.seqDetails.ref.seqName)
+                }
+        })
+
         state.processedFiles.forEach((file) => {
           const currentDataset = file.seqDetails.dataset;
           const currentVirus = file.seqDetails.virus;

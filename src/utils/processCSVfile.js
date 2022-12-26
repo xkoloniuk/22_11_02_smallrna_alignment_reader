@@ -10,7 +10,7 @@ function splitMultiFasta(target, name) {
   let ref = {}
   const regexGaps = /^-*/
   const dnaSeq = /[ATCG]{18,32}/
-  const dtsetPattern = /\d[A-Z]_\d/
+  const dtsetPattern = /\d[A-Z]_\d|S\d{2,3}/
   const virusPattern = /SMoV|StrV1|SCV/
   const variantPattern = /(RNA\d)?[ABC](?=.fasta)/
   const dataset = name.match(dtsetPattern)[0]

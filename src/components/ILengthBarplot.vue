@@ -1,6 +1,6 @@
 <template>
     <div class="barplot">
-        <div v-for="length in Object.keys(binByLength.lengthCounts)" 
+        <div v-for="length in actualRange" 
             :key="length + 'len'"
             :style="{height: (200 / binByLength.max) * binByLength.lengthCounts[length] + 'px' }"
             class="barplot-bar"
@@ -30,6 +30,14 @@ export default {
                 return acc[cur.length] ? ++acc[cur.length] : acc[cur.length] = 1, acc
             },{})
             return {max: Math.max(...Object.values(lengthCounts)), lengthCounts}
+        },
+        actualRange (){
+            const lengths = this.data.map(i => i.length)
+
+            console.log(Math.max(...lengths))
+            const arr = Array.from({length: (Math.max(...lengths) - Math.min(...lengths) + 1)}).fill(Math.min(...lengths)).map((l,i) => l+i )
+            console.log(arr)
+            return arr
         }
     }
 }
@@ -42,11 +50,11 @@ export default {
     padding 20px
 .barplot-bar
   background: gray
-  width: 10px
+  width: 20px
   position: relative
 .barplot-bar>span
     position absolute
     bottom -20px
-    font-size 0.4rem
+    font-size 0.8rem
     text-align center
 </style>

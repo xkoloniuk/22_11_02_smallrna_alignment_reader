@@ -1,5 +1,5 @@
 <template>
-
+<div @click="toggleShowPlots">{{ showPlots ? 'Hide plots' : 'Show plots' }}</div>
   <div class="container">
     <h1 v-show="!processedFiles.length">Upload mapping of small RNA in FASTA format</h1>
     <div @click="showStore" >show processed fasta data</div>
@@ -72,50 +72,51 @@
                 </td>
 
               </tr>
-
-              <tr class="coverage-plot-tr-container">
-                <td colspan="3">
-                  <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
-                </td>
-                <td colspan="5" >
-                  all mapped  {{ filterFn(index, 'seq').length }}
-                  <i-coverage-plot 
-                  :reads="filterFn(index, 'seq')"
-                  :refLength="file.seqDetails.ref.seqLength"
-                    />
-                </td>
-              </tr>
-
-              <tr class="coverage-plot-tr-container">
-                <td colspan="3">
-                    <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)"/>
-                </td>
-                <td colspan="5" >
-                  Variant specific {{ filterFn(index, 'variantSpecific').length }}
-
-                  <i-coverage-plot 
-                  :ref="file.name + '_plot'"
-                  :reads="filterFn(index, 'variantSpecific')"
-                  :refLength="file.seqDetails.ref.seqLength"
-                    />
-                </td>
-              </tr>
-
-              <tr class="coverage-plot-tr-container">
-                <td colspan="3">
-                      <i-length-barplot :data="filterFn(index, 'variantSpecificUnique').map(read => read.seq)"/>
-                </td>
-                <td colspan="5" >
-                  Variant specific without duplicates  {{ filterFn(index, 'variantSpecificUnique').length }}
-
-                  <i-coverage-plot 
-                  :ref="file.name + '_plot'"
-                  :reads="filterFn(index, 'variantSpecificUnique')"
-                  :refLength="file.seqDetails.ref.seqLength"
-                    />
-                </td>
-              </tr>
-
+<template v-if="showPlots">
+  <tr class="coverage-plot-tr-container">
+    <td colspan="3">
+      <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
+      </td>
+      <td colspan="5" >
+        all mapped  {{ filterFn(index, 'seq').length }}
+        <i-coverage-plot 
+        :reads="filterFn(index, 'seq')"
+        :refLength="file.seqDetails.ref.seqLength"
+        />
+      </td>
+    </tr>
+    
+    <tr class="coverage-plot-tr-container">
+      <td colspan="3">
+        <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)"/>
+        </td>
+        <td colspan="5" >
+          Variant specific {{ filterFn(index, 'variantSpecific').length }}
+          
+          <i-coverage-plot 
+          :ref="file.name + '_plot'"
+          :reads="filterFn(index, 'variantSpecific')"
+          :refLength="file.seqDetails.ref.seqLength"
+          />
+        </td>
+      </tr>
+      
+      <tr class="coverage-plot-tr-container">
+        <td colspan="3">
+          <i-length-barplot :data="filterFn(index, 'variantSpecificUnique').map(read => read.seq)"/>
+          </td>
+          <td colspan="5" >
+            Variant specific without duplicates  {{ filterFn(index, 'variantSpecificUnique').length }}
+            
+            <i-coverage-plot 
+            :ref="file.name + '_plot'"
+            :reads="filterFn(index, 'variantSpecificUnique')"
+            :refLength="file.seqDetails.ref.seqLength"
+            />
+          </td>
+        </tr>
+      </template>
+        
 
 
           </template>
@@ -144,7 +145,8 @@ export default {
   data (){
     return{
       files: [],
-      readsToShow: 'total'
+      readsToShow: 'total',
+      showPlots: true
     }
   },
   methods: {
@@ -152,6 +154,9 @@ export default {
       console.log(store.state.processedFiles)
       console.log(this.datasets)
 
+    },
+    toggleShowPlots (){
+      this.showPlots = !this.showPlots
     },
     onToggledData () {
       this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
