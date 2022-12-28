@@ -1,5 +1,9 @@
 <template>
-<div @click="toggleShowPlots">{{ showPlots ? 'Hide plots' : 'Show plots' }}</div>
+<div @click="toggleShowPlots" >
+  <span class="plots-show-info">
+    Current settings: "{{ showPlots ? 'Show all plots' : 'No plots' }}"
+  </span>
+</div>
   <div class="container">
     <h1 v-show="!processedFiles.length">Upload mapping of small RNA in FASTA format</h1>
     <div @click="showStore" >show processed fasta data</div>
@@ -22,6 +26,9 @@
                 Dataset
               </th>
               <th>
+                Input
+              </th>
+              <th>
                 Virus
               </th>
               <th>
@@ -31,13 +38,25 @@
                 Mapped reads
               </th>
               <th>
+                Mapped reads, %
+              </th>
+              <th>
+                RPKM
+              </th>
+              <th>
                 Forward/Reverse balance
               </th>
               <th>
                 Nonredundant, %
               </th>
               <th>
-                Variant specific (%)
+                Strain specific
+              </th>
+              <th>
+                Strain specific, %
+              </th>
+              <th>
+                Strain specific, RPKM
               </th>
 
             </tr>
@@ -52,6 +71,9 @@
                   {{ file.seqDetails.dataset }}
                 </td>
                 <td>
+                  {{ file.seqDetails.inputReads }}
+                </td>
+                <td>
                   {{ file.seqDetails.virus }}
                 </td>
                 <td>
@@ -61,6 +83,12 @@
                   {{ file.seqDetails.totalCount }}
                 </td>
                 <td>
+                  {{ (( file.seqDetails.totalCount / file.seqDetails.inputReads) * 100).toFixed(3)  }}
+                </td>
+                <td>
+                  {{ file.seqDetails.rpkm.toFixed(1) }}
+                </td>
+                <td>
                   {{ file.seqDetails.frRvRatio }}
                 </td>
                 <td>
@@ -68,17 +96,24 @@
 
                 </td>
                 <td>
-                  {{ filterFn(index, 'variantSpecific').length + ' ' + '(' + fixedNumber(100 * (filterFn(index, 'variantSpecific').length / file.seqDetails.totalCount)) + '%)' }}
+                  {{ filterFn(index, 'variantSpecific').length }}
+                </td>
+                <td>
+                  {{ fixedNumber(100 * (filterFn(index, 'variantSpecific').length / file.seqDetails.totalCount), 1) }}
+                </td>
+                <td>
+                  {{ file.seqDetails.rpkmVariantSpecific.toFixed(1) }}
                 </td>
 
               </tr>
 <template v-if="showPlots">
   <tr class="coverage-plot-tr-container">
-    <td colspan="3">
+    <td class="td-flex-col-bottom" colspan="3">
       <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
+        Length distribution of the mapped reads
       </td>
-      <td colspan="5" >
-        all mapped  {{ filterFn(index, 'seq').length }}
+      <td colspan="9" >
+        All mapped:  {{ filterFn(index, 'seq').length }} reads
         <i-coverage-plot 
         :reads="filterFn(index, 'seq')"
         :refLength="file.seqDetails.ref.seqLength"
@@ -87,11 +122,13 @@
     </tr>
     
     <tr class="coverage-plot-tr-container">
-      <td colspan="3">
+      <td class="td-flex-col-bottom" colspan="3">
         <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)"/>
+        Length distribution of the mapped reads
+
         </td>
-        <td colspan="5" >
-          Variant specific {{ filterFn(index, 'variantSpecific').length }}
+        <td colspan="9" >
+          Strains specific: {{ filterFn(index, 'variantSpecific').length }} reads
           
           <i-coverage-plot 
           :ref="file.name + '_plot'"
@@ -101,11 +138,11 @@
         </td>
       </tr>
       
-      <tr class="coverage-plot-tr-container">
+      <!-- <tr class="coverage-plot-tr-container">
         <td colspan="3">
           <i-length-barplot :data="filterFn(index, 'variantSpecificUnique').map(read => read.seq)"/>
           </td>
-          <td colspan="5" >
+          <td colspan="9" >
             Variant specific without duplicates  {{ filterFn(index, 'variantSpecificUnique').length }}
             
             <i-coverage-plot 
@@ -114,7 +151,7 @@
             :refLength="file.seqDetails.ref.seqLength"
             />
           </td>
-        </tr>
+        </tr> -->
       </template>
         
 
@@ -146,7 +183,7 @@ export default {
     return{
       files: [],
       readsToShow: 'total',
-      showPlots: true
+      showPlots: false
     }
   },
   methods: {
@@ -182,15 +219,18 @@ export default {
           .catch((e) => console.error(e));
       }
     },
-
+    
     filterFn (index, par){
       return store.state.processedFiles[index].seqDetails.reads.filter(read => read[par])
     },
   },
+
   computed: {
     processedFiles() {
          return store.state.processedFiles;
     },
+
+
     loading() {
       return store.state.loading
     },
@@ -262,6 +302,10 @@ button
     filter: drop-shadow(1px 1px 10px grey)
     filter: invert(100%)
 
+.td-flex-col-bottom
+  display: flex
+  flex-direction: column
+
 .barplot-bar
   background: gray
   height: 20px
@@ -294,4 +338,9 @@ button
     border-radius: 5px
     padding 0.2rem 0.5rem
     background: white
+.plots-show-info
+    background yellow
+    border-radius 5px
+    cursor pointer
+
 </style>

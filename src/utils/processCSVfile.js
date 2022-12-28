@@ -10,7 +10,7 @@ function splitMultiFasta(target, name) {
   let ref = {}
   const regexGaps = /^-*/
   const dnaSeq = /[ATCG]{18,32}/
-  const dtsetPattern = /\d[A-Z]_\d|S\d{2,3}/
+  const dtsetPattern = /\d[A-Z]_\d|S\d{2,3}_L\d{3}/
   const virusPattern = /SMoV|StrV1|SCV/
   const variantPattern = /(RNA\d)?[ABC](?=.fasta)/
   const dataset = name.match(dtsetPattern)[0]
@@ -66,20 +66,21 @@ function splitMultiFasta(target, name) {
     if(unit.reverse) {
       if (unit.unique === true) {
         readLength.map(pos => {
-          ref.coverage.total.minus[pos]--
-          ref.coverage.unique.minus[pos]--
+          ref.coverage.total.plus[pos]++
+          ref.coverage.unique.plus[pos]++
         })
         } else { 
-          readLength.map(pos => ref.coverage.total.minus[pos]-- ) 
+          readLength.map(pos => ref.coverage.total.plus[pos]++ ) 
         } 
     } else { 
       if (unit.unique === true) {
         readLength.map(pos => {
-          ref.coverage.total.plus[pos]++
-          ref.coverage.unique.plus[pos]++
+          ref.coverage.total.minus[pos]--
+          ref.coverage.unique.minus[pos]--
+
         })
       } else {
-        readLength.map(pos =>  ref.coverage.total.plus[pos]++ )
+        readLength.map(pos =>  ref.coverage.total.minus[pos]-- )
       }
     }
 

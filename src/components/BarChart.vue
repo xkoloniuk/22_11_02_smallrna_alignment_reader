@@ -47,7 +47,7 @@ export default {
     },
     width: {
       type: Number,
-      default: 1400,
+      default: 800,
     },
     height: {
       type: Number,
@@ -79,12 +79,12 @@ export default {
         labels: this.barChartData.position,
         datasets: [
           {
-            label: "plus",
+            label: "negative strand",
             data: this.barChartData.plus,
             backgroundColor: "black",
           },
           {
-            label: "minus",
+            label: "positive strand",
             data: this.barChartData.minus,
             backgroundColor: "red",
           },
