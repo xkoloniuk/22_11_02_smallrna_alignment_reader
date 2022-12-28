@@ -1,41 +1,160 @@
 <template>
-    <div class="barplot">
-        <div v-for="length in actualRange" 
-            :key="length + 'len'"
-            :style="{height: (180 / binByLength.max) * binByLength.lengthCounts[length] + 'px' }"
-            class="barplot-bar"
-            >
-            <span>
-                {{ length }}
-            </span>
-        </div>
-        </div>
+    <Bar :chart-options="chartOptions" :chart-data="chartData" :chart-id="chartId" :dataset-id-key="datasetIdKey"
+        :plugins="plugins" :css-classes="cssClasses" :styles="styles" :width="width" :height="height" />
 </template>
 
 <script>
+import { Bar } from "vue-chartjs";
+import {
+    Chart as ChartJS,
+    Title,
+    Tooltip,
+    Legend,
+    BarElement,
+    CategoryScale,
+    LinearScale,
+} from "chart.js";
 
+
+ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    BarElement,
+    CategoryScale,
+    LinearScale
+    );
+    
 export default {
     name: "ILengthBarplot",
+    components: { Bar },
+
+
     props: {
+        chartId: {
+            type: String,
+            default: "bar-chart",
+        },
+        datasetIdKey: {
+            type: String,
+            default: "label",
+        },
+        width: {
+            type: Number,
+            default: 300,
+        },
+        height: {
+            type: Number,
+            default: 265,
+        },
+        cssClasses: {
+            default: "",
+            type: String,
+        },
+        styles: {
+            type: Object,
+            default: () => { },
+        },
+        plugins: {
+            type: Object,
+            default: () => { },
+        },
         data: Array
     },
-    methods:{
-        showBinData (){
+    watch: {
+        chartData: function () {
+            this._chart.destroy();
+            this.renderChart(this.chartData);
+        }
+    },
+    onMount(){
+        // console.log(this.binByLength)
+
+    },
+    data() {
+        return {
+
+            chartOptions: {
+                responsive: true,
+                // THIS REMOVES CHART LABEL
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    
+            },
+            options: {
+
+                scales: {
+                    
+                    y: {
+                        // type: 'logarithmic',
+                        // max: 50,
+                        // min: -50
+                        ticks: {
+                            
+
+
+
+                            
+                        //   min: 3,
+                        //   beginAtZero: true
+                              }
+                    }
+                },
+
+                }
+            },
+
+        }
+
+    },
+
+    methods: {
+        showBinData() {
             console.log(this.binByLength)
         }
     },
     computed: {
-        binByLength (){
-           const lengthCounts = this.data.reduce((acc, cur) =>{
+        chartData() {
+            return {
+                labels: [18,19,20,21,22,23,24,25,26,27,28,29,30],
+                datasets: [
+                    {
+                        maxBarThickness: 20,
+                        maxBarLength: 0,
+                        data: Object.values(this.binByLength.lengthCounts),
+                        backgroundColor: [
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        'rgba(0,0,0, 0.5)',
+                        ]
+                    },
+                    
+                ],
+            }
+            },
+        binByLength() {
+            const lengthCounts = this.data.reduce((acc, cur) => {
                 return acc[cur.length] ? ++acc[cur.length] : acc[cur.length] = 1, acc
-            },{})
-            return {max: Math.max(...Object.values(lengthCounts)), lengthCounts}
+            }, {})
+            return { max: Math.max(...Object.values(lengthCounts)), lengthCounts }
         },
-        actualRange (){
+        actualRange() {
             const lengths = this.data.map(i => i.length)
 
             console.log(Math.max(...lengths))
-            const arr = Array.from({length: (Math.max(...lengths) - Math.min(...lengths) + 1)}).fill(Math.min(...lengths)).map((l,i) => l+i )
+            const arr = Array.from({ length: (Math.max(...lengths) - Math.min(...lengths) + 1) }).fill(Math.min(...lengths)).map((l, i) => l + i)
             console.log(arr)
             return arr
         }

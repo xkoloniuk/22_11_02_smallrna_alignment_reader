@@ -1,24 +1,17 @@
 <template>
-<div @click="toggleShowPlots" >
-  <span class="plots-show-info">
-    Current settings: "{{ showPlots ? 'Show all plots' : 'No plots' }}"
-  </span>
-</div>
+  <div @click="toggleShowPlots">
+    <span class="plots-show-info">
+      Current settings: "{{ showPlots ? 'Show all plots' : 'No plots' }}"
+    </span>
+  </div>
   <div class="container">
     <h1 v-show="!processedFiles.length">Upload mapping of small RNA in FASTA format</h1>
-    <div @click="showStore" >show processed fasta data</div>
-    <input
-      v-if="!processedFiles.length"
-      ref="csvLoader"
-      type="file"
-      accept=".fasta"
-      multiple
-      @change="processFiles"
-    />
+    <div @click="showStore">show processed fasta data</div>
+    <input v-if="!processedFiles.length" ref="csvLoader" type="file" accept=".fasta" multiple @change="processFiles" />
     <div v-else class="file-list">
-      <div class="header"> {{ 'Recieved data: ' + processedFiles.length +' files' }} </div>
+      <div class="header"> {{ 'Recieved data: ' + processedFiles.length + ' files' }} </div>
 
-      <div v-if="!loading" class="table-container"> 
+      <div v-if="!loading" class="table-container">
         <table class="table-mapped-overview">
           <thead>
             <tr>
@@ -26,7 +19,7 @@
                 Dataset
               </th>
               <th>
-                Input
+                Input reads
               </th>
               <th>
                 Virus
@@ -53,7 +46,7 @@
                 Strain specific
               </th>
               <th>
-                Strain specific, %
+                Strain specific, % from total mapped reads
               </th>
               <th>
                 Strain specific, RPKM
@@ -63,10 +56,9 @@
           </thead>
 
           <tbody>
-            <template v-for="(file, index) in processedFiles"
-              :key="'file' + index">
+            <template v-for="(file, index) in processedFiles" :key="'file' + index">
 
-              <tr class="reads-details-tr-container">  
+              <tr class="reads-details-tr-container">
                 <td>
                   {{ file.seqDetails.dataset }}
                 </td>
@@ -83,7 +75,7 @@
                   {{ file.seqDetails.totalCount }}
                 </td>
                 <td>
-                  {{ (( file.seqDetails.totalCount / file.seqDetails.inputReads) * 100).toFixed(3)  }}
+                  {{ ((file.seqDetails.totalCount / file.seqDetails.inputReads) * 100).toFixed(3) }}
                 </td>
                 <td>
                   {{ file.seqDetails.rpkm.toFixed(1) }}
@@ -106,39 +98,38 @@
                 </td>
 
               </tr>
-<template v-if="showPlots">
-  <tr class="coverage-plot-tr-container">
-    <td class="td-flex-col-bottom" colspan="3">
-      <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
-        Length distribution of the mapped reads
-      </td>
-      <td colspan="9" >
-        All mapped:  {{ filterFn(index, 'seq').length }} reads
-        <i-coverage-plot 
-        :reads="filterFn(index, 'seq')"
-        :refLength="file.seqDetails.ref.seqLength"
-        />
-      </td>
-    </tr>
-    
-    <tr class="coverage-plot-tr-container">
-      <td class="td-flex-col-bottom" colspan="3">
-        <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)"/>
-        Length distribution of the mapped reads
+              <template v-if="showPlots">
+                <tr class="coverage-plot-tr-container">
+                  <td colspan="3" class="td-align-bottom">
+                   <strong>
+                     All mapped: {{ filterFn(index, 'seq').length }} reads
+                   </strong>
+                    <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
+                    Length distribution of the mapped reads
+                  </td>
+                  <td colspan="9">
+                    <i-coverage-plot :reads="filterFn(index, 'seq')" :refLength="file.seqDetails.ref.seqLength" />
+                  </td>
+                </tr>
+                
+                <tr class="coverage-plot-tr-container">
+                  <td colspan="3" class="td-align-bottom">
+                    <strong>
 
-        </td>
-        <td colspan="9" >
-          Strains specific: {{ filterFn(index, 'variantSpecific').length }} reads
-          
-          <i-coverage-plot 
-          :ref="file.name + '_plot'"
-          :reads="filterFn(index, 'variantSpecific')"
-          :refLength="file.seqDetails.ref.seqLength"
-          />
-        </td>
-      </tr>
-      
-      <!-- <tr class="coverage-plot-tr-container">
+                      Strains specific: {{ filterFn(index, 'variantSpecific').length }} reads
+                    </strong>
+                    <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)" />
+                    Length distribution of the mapped reads
+
+                  </td>
+                  <td colspan="9">
+
+                    <i-coverage-plot :ref="file.name + '_plot'" :reads="filterFn(index, 'variantSpecific')"
+                      :refLength="file.seqDetails.ref.seqLength" />
+                  </td>
+                </tr>
+
+                <!-- <tr class="coverage-plot-tr-container">
         <td colspan="3">
           <i-length-barplot :data="filterFn(index, 'variantSpecificUnique').map(read => read.seq)"/>
           </td>
@@ -152,16 +143,16 @@
             />
           </td>
         </tr> -->
-      </template>
-        
+              </template>
 
 
-          </template>
+
+            </template>
 
           </tbody>
         </table>
-    </div>
-      
+      </div>
+
     </div>
   </div>
 </template>
@@ -177,31 +168,31 @@ import processCsvFile from "@/utils/processCSVfile.js";
 export default {
   name: "IndexView",
   components: {
-    ILengthBarplot, ICoveragePlot, 
+    ILengthBarplot, ICoveragePlot,
   },
-  data (){
-    return{
+  data() {
+    return {
       files: [],
       readsToShow: 'total',
       showPlots: false
     }
   },
   methods: {
-    showStore (){
+    showStore() {
       console.log(store.state.processedFiles)
       console.log(this.datasets)
 
     },
-    toggleShowPlots (){
+    toggleShowPlots() {
       this.showPlots = !this.showPlots
     },
-    onToggledData () {
+    onToggledData() {
       this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
     },
-    toggleReadsToShow (){
+    toggleReadsToShow() {
       this.readsToShow = this.readsToShow === 'total' ? 'unique' : 'total'
     },
-    fixedNumber (n) {
+    fixedNumber(n) {
       return n.toFixed(1)
     },
     processFiles() {
@@ -213,28 +204,28 @@ export default {
           .text()
           .then((data) => data)
           .then((data) => {
-            const nameAndSeq = {name: file.name, seqDetails: processCsvFile(data, file.name), filesCount: filesCount}
+            const nameAndSeq = { name: file.name, seqDetails: processCsvFile(data, file.name), filesCount: filesCount }
             store.commit("addEntry", nameAndSeq);
           })
           .catch((e) => console.error(e));
       }
     },
-    
-    filterFn (index, par){
+
+    filterFn(index, par) {
       return store.state.processedFiles[index].seqDetails.reads.filter(read => read[par])
     },
   },
 
   computed: {
     processedFiles() {
-         return store.state.processedFiles;
+      return store.state.processedFiles;
     },
 
 
     loading() {
       return store.state.loading
     },
-    datasets () {
+    datasets() {
       const datasets = store.state.processedFiles.map(file => file.seqDetails.dataset)
       return new Set(datasets)
     },
@@ -281,17 +272,23 @@ button
   &th,td
     padding 0.5rem
     vertical-align: top
-  &tr:nth-child(4n+1)
+  &tr:nth-child(3n+1)
     background: lightblue
     // background: white
     margin 20px
-.coverage-plot-tr-container
-  border-bottom 2px solid black
-.coverage-plot-tr-container:nth-child(even),
-  border-left 2px solid black
+  &tr:nth-child(3n)
+    border-bottom 4px solid black
+thead tr:first-child
+  background: lightpink
 
-.reads-details-tr-container:nth-child(even)
-  border-left 2px solid black
+// .coverage-plot-tr-container
+//   border-bottom 2px solid black
+.coverage-plot-tr-container
+    border-bottom 1px solid black
+
+
+// .reads-details-tr-container:nth-child(3n+1)
+//   border-left 2px solid black
 
 .toggleReads
   background: lightpink
@@ -302,9 +299,8 @@ button
     filter: drop-shadow(1px 1px 10px grey)
     filter: invert(100%)
 
-.td-flex-col-bottom
-  display: flex
-  flex-direction: column
+.td-align-bottom
+  vertical-align: top
 
 .barplot-bar
   background: gray

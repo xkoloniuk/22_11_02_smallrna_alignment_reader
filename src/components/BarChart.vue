@@ -81,12 +81,16 @@ export default {
           {
             label: "negative strand",
             data: this.barChartData.plus,
-            backgroundColor: "black",
+            backgroundColor: [
+            'rgba(0,0,0, 1)',
+            ],
           },
           {
             label: "positive strand",
             data: this.barChartData.minus,
-            backgroundColor: "red",
+            backgroundColor: [
+            'rgba(255,0,0, 1)',
+            ],
           },
         ],
       },
