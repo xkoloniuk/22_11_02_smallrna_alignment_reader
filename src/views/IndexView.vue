@@ -99,33 +99,37 @@
 
               </tr>
               <template v-if="showPlots">
+ 
                 <tr class="coverage-plot-tr-container">
-                  <td colspan="3" class="td-align-bottom">
-                   <strong>
-                     All mapped: {{ filterFn(index, 'seq').length }} reads
-                   </strong>
-                    <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
-                    Length distribution of the mapped reads
-                  </td>
-                  <td colspan="9">
+                  <td colspan="10" class="td-align-bottom td-center-text">
                     <i-coverage-plot :reads="filterFn(index, 'seq')" :refLength="file.seqDetails.ref.seqLength" />
+                    <strong>Mapping coverage of <span class="text-red">all reads</span> matching {{ file.seqDetails.ref.seqName }} ({{ filterFn(index, 'seq').length }} reads)</strong> 
                   </td>
+                  <td colspan="2" class="td-align-bottom td-center-text">
+                    <div class="width-475">
+
+                      <i-length-barplot :data="file.seqDetails.reads.map(read => read.seq)" />
+                    </div>
+                    <strong>Length distribution of the reads</strong>
+                  </td>
+
+                  
+
                 </tr>
+
+
                 
                 <tr class="coverage-plot-tr-container">
-                  <td colspan="3" class="td-align-bottom">
-                    <strong>
-
-                      Strains specific: {{ filterFn(index, 'variantSpecific').length }} reads
-                    </strong>
-                    <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)" />
-                    Length distribution of the mapped reads
-
-                  </td>
-                  <td colspan="9">
-
+                  <td colspan="10" class="td-align-bottom td-center-text">
                     <i-coverage-plot :ref="file.name + '_plot'" :reads="filterFn(index, 'variantSpecific')"
                       :refLength="file.seqDetails.ref.seqLength" />
+                    <strong>Mapping coverage of {{ file.seqDetails.ref.seqName }} <span class="text-red">specific reads</span> ({{ filterFn(index, 'variantSpecific').length }} reads)</strong>
+
+                  </td>
+                  <td colspan="2" class="td-align-bottom td-center-text">
+                    <i-length-barplot :data="filterFn(index, 'variantSpecific').map(read => read.seq)" />
+                    <strong>Length distribution of the reads</strong>
+
                   </td>
                 </tr>
 
@@ -277,14 +281,14 @@ button
     // background: white
     margin 20px
   &tr:nth-child(3n)
-    border-bottom 4px solid black
+    border-top 4px solid black
 thead tr:first-child
   background: lightpink
 
 // .coverage-plot-tr-container
-//   border-bottom 2px solid black
+//   border-top 2px solid black
 .coverage-plot-tr-container
-    border-bottom 1px solid black
+    border-top 1px solid black
 
 
 // .reads-details-tr-container:nth-child(3n+1)
@@ -300,7 +304,12 @@ thead tr:first-child
     filter: invert(100%)
 
 .td-align-bottom
+  vertical-align: bottom
+.td-align-top
   vertical-align: top
+.td-center-text
+  text-align: center
+    
 
 .barplot-bar
   background: gray
@@ -338,5 +347,11 @@ thead tr:first-child
     background yellow
     border-radius 5px
     cursor pointer
+
+.width-475
+  width 475px
+
+.text-red
+  color red
 
 </style>

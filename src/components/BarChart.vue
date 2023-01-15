@@ -51,7 +51,7 @@ export default {
     },
     height: {
       type: Number,
-      default: 200,
+      default: 300,
     },
     cssClasses: {
       default: "",
@@ -94,34 +94,43 @@ export default {
           },
         ],
       },
-      chartOptions: {
-        responsive: true,
-      },
-      options: {
-        labels: {
-          display: false
-        },
-        scales: {
-          y: {
-            // type: 'logarithmic',
-            // max: 50,
-            // min: -50
-            // ticks: {
-            //   min: 3,
-            //   beginAtZero: true
-            //       }
-          }
-        },
-        plugins: {
-            legend: {
-                display: false
+        chartOptions: {
+          responsive: true,
+            labels: {
+              display: true
             },
-
-        }
-      },
-      // options: {
-
-      // },
+            scales: {
+              y: {
+                title: {
+                  display: true,
+                  text: 'Coverage'
+                },
+                ticks: {
+                  // For a category axis, the val is the index so the lookup via getLabelForValue is needed
+                  callback: function (val) {
+                    return val < 0 ? val * -1 : val;
+                  },
+                  
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Genome position, bp'
+                },
+ 
+              }
+            },
+            plugins: {
+              legend: {
+                display: true
+              },
+              title: {
+                display: false
+              },
+              
+            }
+          },
       }
 
   },

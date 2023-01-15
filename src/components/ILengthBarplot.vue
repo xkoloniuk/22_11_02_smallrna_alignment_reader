@@ -41,11 +41,11 @@ export default {
         },
         width: {
             type: Number,
-            default: 300,
+            default: 250,
         },
         height: {
             type: Number,
-            default: 265,
+            default: 200,
         },
         cssClasses: {
             default: "",
@@ -83,27 +83,22 @@ export default {
                     },
                     
             },
-            options: {
 
-                scales: {
-                    
-                    y: {
-                        // type: 'logarithmic',
-                        // max: 50,
-                        // min: -50
-                        ticks: {
-                            
-
-
-
-                            
-                        //   min: 3,
-                        //   beginAtZero: true
-                              }
-                    }
-                },
-
+            scales: {
+              y: {
+                title: {
+                  display: true,
+                  text: 'Reads, n'
                 }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Read size, nt'
+                }
+              }
+            },
+
             },
 
         }
