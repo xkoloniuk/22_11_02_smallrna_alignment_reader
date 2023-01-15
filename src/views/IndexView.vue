@@ -290,8 +290,8 @@ button
     background: lightblue
     // background: white
     margin 20px
-  &tr:nth-child(3n)
-    border-top 4px solid black
+  &tbody tr:nth-child(3n)
+    border-bottom 4px solid black
 thead tr:first-child
   background: lightpink
 
