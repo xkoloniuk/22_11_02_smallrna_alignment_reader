@@ -1,7 +1,7 @@
 <template>
   <div @click="toggleShowPlots">
     <span class="plots-show-info">
-      Current settings: "{{ showPlots ? 'Show all plots' : 'No plots' }}"
+      Current settings: "{{ showPlots? 'Show all plots': 'No plots' }}"
     </span>
   </div>
   <div class="container">
@@ -12,51 +12,56 @@
       <div class="header"> {{ 'Recieved data: ' + processedFiles.length + ' files' }} </div>
 
       <div v-if="!loading" class="table-container">
-        <table class="table-mapped-overview">
-          <thead>
-            <tr>
-              <th>
-                Dataset
-              </th>
-              <th>
-                Input reads
-              </th>
-              <th>
-                Virus
-              </th>
-              <th>
-                Reference
-              </th>
-              <th>
-                Mapped reads
-              </th>
-              <th>
-                Mapped reads, %
-              </th>
-              <th>
-                RPKM
-              </th>
-              <th>
-                Forward/Reverse balance
-              </th>
-              <th>
-                Nonredundant, %
-              </th>
-              <th>
-                Strain specific
-              </th>
-              <th>
-                Strain specific, % from total mapped reads
-              </th>
-              <th>
-                Strain specific, RPKM
-              </th>
+        <template v-for="dataset in datasets" :key="dataset+ ' dataset'">
 
-            </tr>
-          </thead>
+        <h2>
+          Mappings of the {{ dataset }} reads against the viral references.
+          </h2>
+          <template v-for="(file, index) in processedFiles.filter(file => file.seqDetails.dataset === dataset)" :key="'file' + index">
+          <table class="table-mapped-overview">
+            <thead>
+              <tr>
+                <th>
+                  Dataset
+                </th>
+                <th>
+                  Input reads
+                </th>
+                <th>
+                  Virus
+                </th>
+                <th>
+                  Reference
+                </th>
+                <th>
+                  Mapped reads
+                </th>
+                <th>
+                  Mapped reads, %
+                </th>
+                <th>
+                  RPKM
+                </th>
+                <th>
+                  Forward/Reverse balance
+                </th>
+                <th>
+                  Nonredundant, %
+                </th>
+                <th>
+                  Strain specific
+                </th>
+                <th>
+                  Strain specific, % from total mapped reads
+                </th>
+                <th>
+                  Strain specific, RPKM
+                </th>
 
-          <tbody>
-            <template v-for="(file, index) in processedFiles" :key="'file' + index">
+              </tr>
+            </thead>
+
+            <tbody>
 
               <tr class="reads-details-tr-container">
                 <td>
@@ -99,11 +104,13 @@
 
               </tr>
               <template v-if="showPlots">
- 
+
                 <tr class="coverage-plot-tr-container">
                   <td colspan="10" class="td-align-bottom td-center-text">
                     <i-coverage-plot :reads="filterFn(index, 'seq')" :refLength="file.seqDetails.ref.seqLength" />
-                    <strong>Mapping coverage of <span class="text-red">all reads</span> matching {{ file.seqDetails.ref.seqName }} ({{ filterFn(index, 'seq').length }} reads)</strong> 
+                    <strong>Mapping coverage of <span class="text-red">all reads</span> matching {{
+                      file.seqDetails.ref.seqName
+                    }} ({{ filterFn(index, 'seq').length }} reads)</strong>
                   </td>
                   <td colspan="2" class="td-align-bottom td-center-text">
                     <div class="width-475">
@@ -113,17 +120,18 @@
                     <strong>Length distribution of the reads</strong>
                   </td>
 
-                  
+
 
                 </tr>
 
 
-                
+
                 <tr class="coverage-plot-tr-container">
                   <td colspan="10" class="td-align-bottom td-center-text">
                     <i-coverage-plot :ref="file.name + '_plot'" :reads="filterFn(index, 'variantSpecific')"
                       :refLength="file.seqDetails.ref.seqLength" />
-                    <strong>Mapping coverage of {{ file.seqDetails.ref.seqName }} <span class="text-red">specific reads</span> ({{ filterFn(index, 'variantSpecific').length }} reads)</strong>
+                    <strong>Mapping coverage of {{ file.seqDetails.ref.seqName }} <span class="text-red">specific
+                        reads</span> ({{ filterFn(index, 'variantSpecific').length }} reads)</strong>
 
                   </td>
                   <td colspan="2" class="td-align-bottom td-center-text">
@@ -151,10 +159,12 @@
 
 
 
-            </template>
 
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </template>
+      </template>
+
       </div>
 
     </div>
