@@ -254,10 +254,14 @@ h1
 
 @media print
   h1 
-    page-break-before always
     display: none
   .header, .plots-show-info, .show-files-btn
     display: none
+
+  .table-container table:nth-child(2n+1)
+    break-before always
+    background yellow
+
 
 
 .header
