@@ -30,4 +30,9 @@ import IButtonReset from './components/IButtonReset.vue';
   margin-top 60px
 a
   padding 1rem
+
+@media print
+  a
+    display: none
+
 </style>

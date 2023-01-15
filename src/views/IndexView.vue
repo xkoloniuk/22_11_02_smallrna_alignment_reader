@@ -6,7 +6,7 @@
   </div>
   <div class="container">
     <h1 v-show="!processedFiles.length">Upload mapping of small RNA in FASTA format</h1>
-    <div @click="showStore">show processed fasta data</div>
+    <div @click="showStore" class="show-files-btn">show processed fasta data</div>
     <input v-if="!processedFiles.length" ref="csvLoader" type="file" accept=".fasta" multiple @change="processFiles" />
     <div v-else class="file-list">
       <div class="header"> {{ 'Recieved data: ' + processedFiles.length + ' files' }} </div>
@@ -251,6 +251,14 @@ export default {
 <style lang="stylus" scoped>
 h1
     padding 1rem
+
+@media print
+  h1 
+    page-break-before always
+    display: none
+  .header, .plots-show-info, .show-files-btn
+    display: none
+
 
 .header
   width 25%

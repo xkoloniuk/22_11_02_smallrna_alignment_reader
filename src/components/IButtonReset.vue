@@ -41,4 +41,8 @@ export default {
     &:hover
       filter: drop-shadow(1px 1px 3px gray)
       font-weight 600
+
+@media print
+  .btn-reset
+    display: none
 </style>
