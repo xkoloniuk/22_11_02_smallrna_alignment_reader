@@ -107,7 +107,9 @@
 
                 <tr class="coverage-plot-tr-container">
                   <td colspan="10" class="td-align-bottom td-center-text">
-                    <i-coverage-plot :reads="filterFn(index, 'seq')" :refLength="file.seqDetails.ref.seqLength" />
+                    <i-coverage-plot
+                        :reads="filterFn(index, 'seq')"
+                        :refLength="file.seqDetails.ref.seqLength" />
                     <strong>Mapping coverage of <span class="text-red">all reads</span> matching {{
                       file.seqDetails.ref.seqName
                     }} ({{ filterFn(index, 'seq').length }} reads)</strong>
@@ -126,10 +128,12 @@
 
 
 
-                <tr class="coverage-plot-tr-container">
+                <tr class="coverage-plot-tr-container" >
                   <td colspan="10" class="td-align-bottom td-center-text">
-                    <i-coverage-plot :ref="file.name + '_plot'" :reads="filterFn(index, 'variantSpecific')"
-                      :refLength="file.seqDetails.ref.seqLength" />
+                    <i-coverage-plot
+                        :ref="file.name + '_plot'"
+                        :reads="filterFn(index, 'variantSpecific')"
+                        :refLength="file.seqDetails.ref.seqLength" />
                     <strong>Mapping coverage of {{ file.seqDetails.ref.seqName }} <span class="text-red">specific
                         reads</span> ({{ filterFn(index, 'variantSpecific').length }} reads)</strong>
 
