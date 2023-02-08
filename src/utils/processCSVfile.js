@@ -27,7 +27,7 @@ function splitMultiFasta(target, name) {
     const tmpSecondLine = tmpSplit[1];
     const tmpSeq = i === 1 ? tmpSecondLine : tmpSecondLine.match(dnaSeq)[0];
     const gapsBeforeSeq = tmpSecondLine.match(regexGaps)[0];
-
+// [0] value is empty due to split function
     if(i === 1) {
       const zeroesArray = Array.from({length:tmpSeq.length}).fill(0)
       ref = {

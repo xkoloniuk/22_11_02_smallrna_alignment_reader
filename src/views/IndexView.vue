@@ -17,7 +17,7 @@
         <h2>
           Mappings of the {{ dataset }} reads against the viral references.
           </h2>
-          <template v-for="(file, index) in processedFiles.filter(file => file.seqDetails.dataset === dataset)" :key="'file' + index">
+          <template v-for="(file, index) in processedFiles.filter(file => file.seqDetails.dataset === dataset)" :key="index + 'index'">
           <table class="table-mapped-overview">
             <thead>
               <tr>
@@ -192,7 +192,8 @@ export default {
     return {
       files: [],
       readsToShow: 'total',
-      showPlots: false
+      showPlots: false,
+      workerRes: ''
     }
   },
   methods: {
@@ -214,6 +215,7 @@ export default {
       return n.toFixed(1)
     },
     processFiles() {
+
 
       const filesCount = this.$refs.csvLoader.files.length;
 
