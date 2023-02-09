@@ -17,7 +17,6 @@
         <h2>
           Mappings of the {{ dataset }} reads against the viral references.
           </h2>
-          <template v-for="(file, index) in processedFiles.filter(file => file.seqDetails.dataset === dataset)" :key="index + 'index'">
           <table class="table-mapped-overview">
             <thead>
               <tr>
@@ -61,6 +60,7 @@
               </tr>
             </thead>
 
+          <template v-for="(file, index) in processedFiles.filter(file => file.seqDetails.dataset === dataset)" :key="index + 'index'">
             <tbody>
 
               <tr class="reads-details-tr-container">
@@ -165,9 +165,9 @@
 
 
             </tbody>
+      </template>
           </table>
         </template>
-      </template>
 
       </div>
 
