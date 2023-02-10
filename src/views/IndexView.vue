@@ -42,6 +42,9 @@
                   RPKM
                 </th>
                 <th>
+                  Genome coverage
+                </th>
+                <th>
                   Forward/Reverse balance
                 </th>
                 <th>
@@ -84,6 +87,9 @@
                 </td>
                 <td>
                   {{ file.seqDetails.rpkm.toFixed(1) }}
+                </td>
+                <td>
+                  {{ file.seqDetails.ref.coverage.strainNonSpecific.genome.overall.toFixed(1) }}
                 </td>
                 <td>
                   {{ file.seqDetails.frRvRatio }}
