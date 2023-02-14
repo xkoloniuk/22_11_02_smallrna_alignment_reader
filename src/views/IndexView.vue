@@ -54,6 +54,9 @@
                   Strain specific
                 </th>
                 <th>
+                  Genome coverage, strain specific
+                </th>
+                <th>
                   Strain specific, % from total mapped reads
                 </th>
                 <th>
@@ -89,7 +92,7 @@
                   {{ file.seqDetails.rpkm.toFixed(1) }}
                 </td>
                 <td>
-                  {{ file.seqDetails.ref.coverage.strainNonSpecific.genome.overall.toFixed(1) }}
+                  {{ file.seqDetails.ref.coverage.strainNonSpecific.genomeCov.toFixed(1) }}
                 </td>
                 <td>
                   {{ file.seqDetails.frRvRatio }}
@@ -100,6 +103,9 @@
                 </td>
                 <td>
                   {{ filterFn(index, 'variantSpecific').length }}
+                </td>
+                <td>
+                  {{ file.seqDetails.ref.coverage.strainSpecific.genomeCov.toFixed(1) }}
                 </td>
                 <td>
                   {{ fixedNumber(100 * (filterFn(index, 'variantSpecific').length / file.seqDetails.totalCount), 1) }}

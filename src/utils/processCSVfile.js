@@ -2,7 +2,41 @@ const processFastaMappingFile = function (file, name) {
     const arrayOfFastaEntries = splitMultiFasta(file, name);
     return arrayOfFastaEntries
 };
+export function getGenomeCoverage(genomeLength, detailCoverageData) {
+    let zeroCount = 0;
+    console.log(detailCoverageData.plus)
+    detailCoverageData.minus.forEach(i => {
+        if (detailCoverageData.minus[i] === 0 && detailCoverageData.plus[i] === 0) {
+            zeroCount++
+        }
+    })
+    return zeroCount === 0 ? 0 : (1 - (zeroCount / genomeLength)) * 100
+}
 
+export function calcCoverage(unit, target) {
+    const readArrayedPosition = Array.from({length: unit.seqLength}).fill(0).map((_, i) => 1 + i + unit.start)
+
+
+    if (unit.reverse) {
+        if (unit.unique) {
+            readArrayedPosition.map(pos => {
+                target.redundant.plus[pos]++
+                target.nonredundant.plus[pos]++
+            })
+        } else {
+            readArrayedPosition.map(pos => target.redundant.plus[pos]++)
+        }
+    } else {
+        if (unit.unique) {
+            readArrayedPosition.map(pos => {
+                target.redundant.minus[pos]--
+                target.nonredundant.minus[pos]--
+            })
+        } else {
+            readArrayedPosition.map(pos => target.redundant.minus[pos]--)
+        }
+    }
+}
 
 function splitMultiFasta(target, name) {
     const fastaArray = target.split(">");
@@ -42,14 +76,19 @@ function splitMultiFasta(target, name) {
                         countRev: 0,
                         countFrw: 0,
                         position: positions.slice(),
+                        genome:
+                            {
+                                strainSpecific: '',
+                                strainNonSpecific: ''
+                            },
                         strainSpecific: {
-
-                            total: {
+                            genomeCov:'',
+                            redundant: {
                                 minus: zeroesArray.slice(),
                                 plus: zeroesArray.slice(),
                                 position: positions.slice()
                             },
-                            unique: {
+                            nonredundant: {
                                 minus: zeroesArray.slice(),
                                 plus: zeroesArray.slice(),
                                 position: positions.slice()
@@ -59,13 +98,13 @@ function splitMultiFasta(target, name) {
                             }
                         },
                         strainNonSpecific: {
-
-                            total: {
+                            genomeCov:'',
+                            redundant: {
                                 minus: zeroesArray.slice(),
                                 plus: zeroesArray.slice(),
                                 position: positions.slice()
                             },
-                            unique: {
+                            nonredundant: {
                                 minus: zeroesArray.slice(),
                                 plus: zeroesArray.slice(),
                                 position: positions.slice()
@@ -91,32 +130,10 @@ function splitMultiFasta(target, name) {
                 reverse: tmpFirstLine.endsWith('reversed)'),
             }
 
-            function getCoverage(unit, strainSpecificity) {
-                const readArrayedPosition = Array.from({length: unit.seqLength}).fill(0).map((_, i) => 1 + i + unit.start)
 
 
-                if (unit.reverse) {
-                    if (unit.unique) {
-                        readArrayedPosition.map(pos => {
-                            ref.coverage[strainSpecificity].total.plus[pos]++
-                            ref.coverage[strainSpecificity].unique.plus[pos]++
-                        })
-                    } else {
-                        readArrayedPosition.map(pos => ref.coverage[strainSpecificity].total.plus[pos]++)
-                    }
-                } else {
-                    if (unit.unique) {
-                        readArrayedPosition.map(pos => {
-                            ref.coverage[strainSpecificity].total.minus[pos]--
-                            ref.coverage[strainSpecificity].unique.minus[pos]--
-                        })
-                    } else {
-                        readArrayedPosition.map(pos => ref.coverage[strainSpecificity].total.minus[pos]--)
-                    }
-                }
-            }
 
-            getCoverage(unit, 'strainNonSpecific')
+            calcCoverage(unit, ref.coverage.strainNonSpecific)
 
             reads.push(unit)
 
@@ -135,26 +152,10 @@ function splitMultiFasta(target, name) {
     const nonRedundantPerc = (100 * uniquesCount / totalCount).toFixed(1);
 
 
-    function getGenomeCoverage(genomeLength, par, strainSpecificity) {
-        let zeroCount = 0;
 
-        ref.coverage[strainSpecificity][par].minus.forEach(i => {
-            if (ref.coverage[strainSpecificity][par].minus[i] === 0 && ref.coverage[strainSpecificity][par].plus[i] === 0) {
-                zeroCount++
-
-                // if (ref.seqName === 'SMoV_RNA1A' && i < 200) {
-                //     console.log('added')
-                //     console.log(zeroCount)
-                // }
-            }
-        })
-
-
-        return zeroCount === 0 ? 0 : (1 - (zeroCount / genomeLength)) * 100
-    }
 
 // calculate unique reads as it is irrelevant if we use redundant or nonredundant data, coverage remains the same
-    ref.coverage.strainNonSpecific.genome.overall = getGenomeCoverage(ref.seqLength, 'unique', 'strainNonSpecific')
+    ref.coverage.strainNonSpecific.genomeCov = getGenomeCoverage(ref.seqLength, ref.coverage.strainNonSpecific.nonredundant)
 
 
 // file name is attached to the dataset in IndexView in function 'showFiles'
