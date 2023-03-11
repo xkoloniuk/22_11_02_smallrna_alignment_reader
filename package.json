@@ -10,6 +10,7 @@
   "dependencies": {
     "chart.js": "^3.9.1",
     "core-js": "^3.8.3",
+    "devextreme-vue": "22.2.4",
     "vue": "^3.2.13",
     "vue-chartjs": "^4.1.2",
     "vue-router": "^4.0.3",
