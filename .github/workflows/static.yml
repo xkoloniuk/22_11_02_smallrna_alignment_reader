@@ -21,7 +21,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-on: [push]
 jobs:
   build_vue:
     runs-on: ubuntu-latest
